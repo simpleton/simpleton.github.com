@@ -1,0 +1,9 @@
+---
+layout: post
+title: "关于看书"
+date: 2012-01-10 02:08
+comments: true
+categories: reading
+---
+##### using chinese in linux environment is a nightmare #####
+i gave up ...orz
