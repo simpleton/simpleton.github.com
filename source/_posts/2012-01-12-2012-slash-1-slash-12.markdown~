@@ -1,0 +1,21 @@
+---
+layout: post
+title: "2012/1/12"
+date: 2012-01-12 21:42
+comments: true
+categories: diary
+---
+### expert python programming ###
+ * [PEP 8](http://www.python.org/dev/peps/pep-0008/)
+ Pylint
+    
+  install by command:
+	$ easy_install logilab.pylintinstaller
+  run by command:
+    $ pylint *.py
+ CloneDigger
+
+ * time (can run program and sumarize the system reasource usage)
+
+    time xxx.py
+

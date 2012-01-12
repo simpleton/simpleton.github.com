@@ -1,0 +1,48 @@
+---
+layout: post
+title: "2012/1/12"
+date: 2012-01-12 21:42
+comments: true
+categories: diary
+---
+## expert python programming ##
+### 1. [PEP 8][1] ###
+
+#### 1.1 Pylint ####
+
+  install by command:
+
+    $ easy_install logilab.pylintinstaller
+
+  run by command:
+
+    $ pylint *.py
+
+#### 1.2 [CloneDigger][2]####
+This tool aimed to find the similar code snip,
+
+    $ easy_install CloneDigger
+
+The presence of clones can increase the maintenance cost of the software. Detected them and then refactored them.
+
+### 2. time ###
+run program and sumarize the system reasource usage 
+
+    time xxx.py
+
+## JaveScript ##
+
+[JavaScript-Garden][3]
+ 
+## Git Tip ##
+
+ [Git_tip][4]
+
+## words ##
+
+** SHOULD GEILI **
+
+  [1]:http://www.python.org/dev/peps/pep-0008/ 
+  [2]:http://clonedigger.sourceforge.net/
+  [3]:http://bonsaiden.github.com/JavaScript-Garden/
+  [4]:http://mislav.uniqpath.com/2010/07/git-tips/
