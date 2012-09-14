@@ -14,8 +14,9 @@ tagline: just a fool guy
 author :
   name : shengjie sun
   email : sunsj1231@gmail.com
+  googleplus : simpleton
   github : simpleton
-  feedburner : feedname
+  twitter : simpleton
 
 # The production_url is only used when full-domain names are needed
 # such as sitemap.txt 
@@ -72,7 +73,7 @@ JB :
   archive_path: /archive.html
   categories_path : /categories.html
   tags_path : /tags.html
-
+  
   # Settings for comments helper
   # Set 'provider' to the comment provider you want to use.
   # Set 'provider' to false to turn commenting off globally.
