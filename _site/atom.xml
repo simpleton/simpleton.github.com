@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+ <title>Simsun Blog</title>
+ <link href="http://simpleton.github.com/atom.xml" rel="self"/>
+ <link href="http://simpleton.github.com"/>
+ <updated>2012-09-14T20:28:49+08:00</updated>
+ <id>http://simpleton.github.com</id>
+ <author>
+   <name>shengjie sun</name>
+   <email>sunsj1231@gmail.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>Learning Python 1</title>
+   <link href="http://simpleton.github.com/python/2012/09/14/learning-python-1"/>
+   <updated>2012-09-14T00:00:00+08:00</updated>
+   <id>http://simpleton.github.com/python/2012/09/14/learning-python-1</id>
+   <content type="html">&lt;p&gt;Recently, iam working on the two APP&amp;#8217;s server side. Life is so brief, so we choose python for implement the server. I have learned python for a short while,i only know the basic work flow such as ,for while if and so on.I just write python program in C sytle&amp;#8230;shame on me. So i want to learning how to write python in python sytle.I will record every thing i have learned.&lt;/p&gt;
+
+&lt;h1 id='first_thing_metaclass'&gt;First thing, metaclass&lt;/h1&gt;
+
+&lt;p&gt;That is cost me whole day to understand metaprogram. Summarizing MetaProgram is just program make the program.That sounds amazing, just like science film. But actually python has whole mechanism for supporting MetaProgram.&lt;/p&gt;
+
+&lt;p&gt;The beginning of the story is that i want to refactor my model module in starfish project to Singleton. But i found some many way to implement Singleton in python on stackoverflow.com. I feel so confused.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href='http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python' title='singleton'&gt;singleton_in_python&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I found one way use metaclass to archieve the Singleton, i feel it&amp;#8217;s interesting.So i spend whole noon search the knowledge about that on internet.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href='http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python' title='metaclass'&gt;metaclass&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href='http://jianpx.iteye.com/blog/908121' title='metaclass in chinese'&gt;metaclass in chinese&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;I didnot understand what they are talking about, so i will write the what i learned in furture.&lt;/p&gt;
+
+&lt;h1 id='__call__'&gt;&amp;#8217;__call__&amp;#8217;&lt;/h1&gt;
+
+&lt;p&gt;override this method, u can use the object of the Class as a function, as same as override the () operator.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;class Factorial:
+	def __init__( self ):
+		self.cache = {}
+	def __call__( self, n ):
+		if n not in self.cache:
+			self.cache[n] = n*self.__call__( n-1 )
+		return self.cache[n]
+
+fact = Factorial()&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;now,u have a &lt;code&gt;fact&lt;/code&gt; object which is callable,just like a function.&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>=Hello World</title>
+   <link href="http://simpleton.github.com/2012/09/13/hello-world"/>
+   <updated>2012-09-13T00:00:00+08:00</updated>
+   <id>http://simpleton.github.com/2012/09/13/hello-world</id>
+   <content type="html"></content>
+ </entry>
+ 
+ 
+</feed>
