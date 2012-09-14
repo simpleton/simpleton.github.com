@@ -1,10 +1,8 @@
 ---
 layout: page
-title: Hello 
+title: Hello Stranger! 
 tagline: Sim is a fool guy
 ---
-## Sample Posts
-Here's a sample "posts list".
 
 <ul class="posts">
   {% for post in site.posts %}
