@@ -31,16 +31,18 @@ I didnot understand what they are talking about, so i will write the what i lear
 # '__call__' #
 override this method, u can use the object of the Class as a function, as same as override the () operator.
 
-	class Factorial:
-		def __init__( self ):
-			self.cache = {}
-		def __call__( self, n ):
-			if n not in self.cache:
-				self.cache[n] = n*self.__call__( n-1 )
-			return self.cache[n]
+{% highlight python %}
+class Factorial:
+	def __init__( self ):
+		self.cache = {}
+	def __call__( self, n ):
+		if n not in self.cache:
+			self.cache[n] = n*self.__call__( n-1 )
+		return self.cache[n]
 	
-	fact = Factorial()
-	
+fact = Factorial()
+{% endhighlight %}
+
 now,u have a `fact` object which is callable,just like a function.
 
 
