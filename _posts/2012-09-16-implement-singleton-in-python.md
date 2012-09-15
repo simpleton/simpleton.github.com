@@ -16,38 +16,40 @@ This method is so ugly....
 I thought metaclass is another way to archive our Singleton goals.(PS: someone said this isn't a Singleton). 
 
 just show the code:
+
+
+{% highlight python %}
+class Singleton(type):
+    def __init__(cls, name, bases, dict):
+        print "Singleton __init__"
+        super(Singleton, cls).__init__(name, bases, dict)
+        cls.instance = None
+		
+    def __call__(cls, *args, **kw):
+        print "Singleton __call__"
+        if cls.instance is None:
+            cls.instance = super(Singleton, cls).__call__(*args, **kw)
+        return cls.instance
+
+class Myclass(object):
+    __metaclass__ = Singleton
+    def __init__(self):
+        print "Myclass __init__"
+		
+    def __new__(cls):
+        print "Myclass __new__"
+        return super(Myclass, cls).__new__(cls)
+		
+    def __call__(self, *args, **kw):
+        print "Myclass __call__"
+    
+if __name__ == '__main__':
+    a = Myclass()
+    b = Myclass()
+    print id(a)
+    print id(b)
+	{% endhighlight %}
 	
-	class Singleton(type):
-		def __init__(cls, name, bases, dict):
-			print "Singleton __init__"
-			super(Singleton, cls).__init__(name, bases, dict)
-			cls.instance = None
-    
-		def __call__(cls, *args, **kw):
-			print "Singleton __call__"
-			if cls.instance is None:
-				cls.instance = super(Singleton, cls).__call__(*args, **kw)
-			return cls.instance
-
-	class Myclass(object):
-		__metaclass__ = Singleton
-		def __init__(self):
-			print "Myclass __init__"
-			
-		def __new__(cls):
-			print "Myclass __new__"
-			return super(Myclass, cls).__new__(cls)
-			
-		def __call__(self, *args, **kw):
-			print "Myclass __call__"
-    
-    if __name__ == '__main__':
-		a = Myclass()
-		b = Myclass()
-		print id(a)
-		print id(b)
-
-
 the result of above codes is: 
 
 	Singleton __init__
@@ -57,7 +59,7 @@ the result of above codes is:
 	Singleton __call__
 	140203664067280
 	140203664067280
-
+	
 metaprogramming is really magical.
 
 [1]: http://stackoverflow.com/questions/31875/is-there-a-simple-elegant-way-to-define-singletons-in-python# 
