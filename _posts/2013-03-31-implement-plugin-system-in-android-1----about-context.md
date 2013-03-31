@@ -3,7 +3,7 @@ layout: post
 title: "Implement Plugin System in Android (1) ———— About Context"
 description: ""
 category: android
-tags: [android] [plugin]
+tags: [android, plugin]
 ---
 {% include JB/setup %}
 最近一直在研究android的plugin系统，觉得最酷的一种就是使用dexClassloader这种方式，具体方法可以参见[AndroidDynamicLoader][1]. 
