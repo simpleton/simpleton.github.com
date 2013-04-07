@@ -3,7 +3,7 @@ layout: post
 title: "Implement Plugin System in Android (2)    Access Resource"
 description: ""
 category: android
-tags: [android] [plugin]
+tags: [android ,plugin]
 ---
 {% include JB/setup %}
 
@@ -158,5 +158,4 @@ tags: [android] [plugin]
 {% endhighlight %}
 
 这样就可以做到，让plugin拥有自有的资源，并且可以让framework app进行调用。上述代码都是一些简单的demo，如果有什么更好的建议，feel free to contact me~
-
 [1]: http://developer.android.com/reference/android/content/res/AssetManager.html
