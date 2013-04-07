@@ -3,7 +3,7 @@ layout: post
 title: "Implement Plugin System in Android (2)    Access Resource"
 description: ""
 category: android
-tags: [android ,plugin]
+tags: [android, plugin]
 ---
 {% include JB/setup %}
 
