@@ -7,12 +7,8 @@ tags: [NodeJs]
 ---
 {% include JB/setup %}
 
-## CoffeeScript##
 
-invoke setInterval method:
-
-
-## socekt io
+## socekt io##
 <Node Application with MongoDB and Backbone> example make me such confused. The example emit a same event in client and server code. That is differet from Socekt.io offical example. But actully, the example works very well. I don't understand the reason...here is the example code:
 
 ** Client:**
@@ -44,8 +40,7 @@ invoke setInterval method:
 
 {% endhighlight %}
 
-
-** Server**
+** Server:**
 
 {% highlight javascript %}
 
@@ -88,7 +83,7 @@ use setInterval function:
 
 {% endhighlight %}
 
-**in CoffeeScript format:**
+** in CoffeeScript format:**
 
 {% highlight javascript %}
 	
