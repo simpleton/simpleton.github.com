@@ -9,9 +9,10 @@ tags: [NodeJs]
 
 
 ## socekt io##
-<Node Application with MongoDB and Backbone> example make me such confused. The example emit a same event in client and server code. That is differet from Socekt.io offical example. But actully, the example works very well. I don't understand the reason...here is the example code:
+"Node Application with MongoDB and Backbone" example make me such confused. The example emit a same event in client and server code. That is differet from Socekt.io offical example. But actully, the example works very well. I don't understand the reason...here is the example code:
 
 ** Client:**
+
 {% highlight javascript %}
 
 	extends layout
