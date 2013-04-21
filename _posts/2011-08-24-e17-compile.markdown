@@ -1,0 +1,51 @@
+---
+author: sunsj1231
+comments: true
+date: 2011-08-24 10:18:14
+layout: post
+slug: e17-compile
+title: E17 compile
+wordpress_id: 44069
+---
+
+http://debianx.org/e17.html
+
+
+## Install Dependencies
+
+
+
+    
+    apt-get install build-essential cvs libtool libltdl-dev automake1.9 autotools-dev libpopt-dev libcurl4-openssl-dev libx11-dev x11proto-xext-dev libbz2-dev libid3tag0-dev libpng12-dev libpng3 libtiff4-dev libgif-dev libjpeg62-dev libssl-dev libfreetype6-dev bison flex gettext libimlib2-dev libxml2 libxml2-dev libxcursor-dev libgtk2.0-dev autoconf pkg-config libxine-dev libxkbfile-dev libsqlite3-dev giblib-dev libxmu-dev libxdamage-dev libxcomposite-dev libtag1-dev libtagc0-dev giblib-dev libasound2-dev libxslt1.1 libxslt1-dev libmpd-dev doxygen liblua5.1-0-dev libexif-dev wpasupplicant subversion libudev-dev libdbus-1-dev libxcb-shape0-dev
+
+
+
+
+## Easy e17 Script
+
+
+
+    
+    wget http://omicron.homeip.net/projects/easy_e17/easy_e17.sh [enter]
+    chmod +x easy_e17.sh [enter]
+    ./easy_e17.sh --packagelist=full -i [enter]
+
+
+
+
+## Add e17 to Sessions Menu
+
+
+
+    
+    ln -s /opt/e17/share/xsessions/enlightenment.desktop /usr/share/xsessions/enlightenment.desktop [enter]
+
+
+
+
+## Update e17
+
+
+
+    
+    ./easy_e17.sh --packagelist=full -u [enter]

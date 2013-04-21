@@ -1,0 +1,84 @@
+---
+author: sunsj1231
+comments: true
+date: 2011-01-24 08:20:33
+layout: post
+slug: kfifo-c
+title: Kfifo.c
+wordpress_id: 27001
+categories:
+- coding
+---
+
+I always believe that there is a overflow bug in kfifo.c,but today rocketChen remind me that is a little tip about unsigned struct.The unsigned struct always should be a ring struct(that means overflow can not happened).  Can not describe clearly,attached some code here:
+
+
+
+
+
+
+    
+    /**
+     * kfifo_in - puts some data into the FIFO
+     * @fifo: the fifo to be used.
+     * @from: the data to be added.
+     * @len: the length of the data to be added.
+     *
+     * This function copies at most @len bytes from the @from buffer into
+     * the FIFO depending on the free space, and returns the number of
+     * bytes copied.
+     *
+     * Note that with only one concurrent reader and one concurrent
+     * writer, you don't need extra locking to use these functions.
+     */
+    unsigned int kfifo_in(struct kfifo *fifo, const void *from,
+    				unsigned int len)
+    {
+            //kfifo_avail returns (k_len - k_size)
+            //k_size = in - out; without any other operation
+    	len = min(kfifo_avail(fifo), len);
+    
+    	__kfifo_in_data(fifo, from, len, 0);
+    	__kfifo_add_in(fifo, len);
+    	return len;
+    }
+    
+    static inline void __kfifo_in_data(struct kfifo *fifo,
+    		const void *from, unsigned int len, unsigned int off)
+    {
+    	unsigned int l;
+    
+    	/*
+    	 * Ensure that we sample the fifo->out index -before- we
+    	 * start putting bytes into the kfifo.
+    	 */
+    
+    	smp_mb();
+    
+    	off = __kfifo_off(fifo, fifo->in + off);
+    
+    	/* first put the data starting from fifo->in to buffer end */
+    	l = min(len, fifo->size - off);
+    	memcpy(fifo->buffer + off, from, l);
+    
+    	/* then put the rest (if any) at the beginning of the buffer */
+    	memcpy(fifo->buffer, from + l, len - l);
+    }
+    
+    /*
+     * __kfifo_add_in internal helper function for updating the in offset
+     */
+    static inline void __kfifo_add_in(struct kfifo *fifo,
+    				unsigned int off)
+    {
+    	smp_wmb();
+    	fifo->in += off;
+    }
+
+
+
+
+unsigned i = -1; actually i = 0xffffffff(int 32-bit system).
+
+
+

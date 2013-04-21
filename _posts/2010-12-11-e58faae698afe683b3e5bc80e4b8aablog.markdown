@@ -1,0 +1,13 @@
+---
+author: sunsj1231
+comments: true
+date: 2010-12-11 08:59:34
+layout: post
+slug: '%e5%8f%aa%e6%98%af%e6%83%b3%e5%bc%80%e4%b8%aablog'
+title: 只是想开个BLOG
+wordpress_id: 21001
+categories:
+- No_coding
+---
+
+墙来墙去的有意思么？

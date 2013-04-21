@@ -1,0 +1,1247 @@
+---
+author: sunsj1231
+comments: true
+date: 2011-05-25 02:45:28
+layout: post
+slug: sort%e5%92%8cqsort%e6%af%94%e8%be%83
+title: sort和qsort比较
+wordpress_id: 44030
+categories:
+- coding
+---
+
+前几天做gcj，有道题的大数据在比赛时expired了。比完看第一名的代码，发现思路差不多，都是很暴力的方法。只是他用了sort进行排序，我用的 qsort 。把他代码下下来run了下，发现真的速度差很多。
+
+以前以为sort 和 qsort差不多的，都是用快排，后来上网搜了下，大家对这2个函数的效率的讨论还是挺多的。以下都是摘录的：
+
+快速排序是一个递归的过程，每次处理一个数列的时候，就从数列中选出一个数，作为划分值，然后
+
+在这个数列中，比划分值小的数移动到划分值的左边，比划分值大的数移动到划分值的
+
+右边。经过一次这样的处理之后，这个数在最终的已排序的数列的位置就确定了。然后
+
+我们把比这个数小和比这个数大的数分别当成两个子数列调用下一次递归，最终获得一
+
+个排好序的数列。上面介绍的是基本快速排序的方法，每次把数组分成两分和中间的一个划分值，而对于有多个重复值的数组来说，基本排序的效率较低。集成在C语言库函数里面的的qsort函数，使用三路划分的方法解决这个问题。所谓三路划分，是指把数组划分成小于划分值，等于划分值和大于划分值的三个部分。
+
+下面我们开始分析源代码，在源代码中的解释以注释的形式出现：
+
+/***
+*qsort.c - quicksort algorithm; qsort() library function for sorting arrays
+*
+*       Copyright (c) Microsoft Corporation. All rights reserved.
+*
+*Purpose:
+*       To implement the qsort() routine for sorting arrays.
+*
+*****************************************************************************
+
+**/
+
+#include <cruntime.h>
+#include <stdlib.h>
+#include <search.h>
+#include <internal.h>
+
+/* 加快运行速度的优化选项 */
+#pragma optimize("t", on)
+
+/* 函数原型*/
+static void __cdecl shortsort(char *lo, char *hi, size_t width,
+int (__cdecl *comp)(const void *, const void *));
+static void __cdecl swap(char *p, char *q, size_t width);
+
+/* this parameter defines the cutoff between using quick sort and
+insertion sort for arrays; arrays with lengths shorter or equal to the
+below value use insertion sort */
+
+/* 这个参数定义的作用是，当快速排序的循环中遇到大小小于CUTOFF的数组时，就使用插入
+
+排序来进行排序，这样就避免了对小数组继续拆分而带来的额外开销。这里的取值8，是
+
+经过测试以后能够时快速排序算法达到最快的CUTOFF的值。*/
+
+#define CUTOFF 8            /* testing shows that this is good value */
+
+/* 源代码中这里是qsort的代码，但是我觉得先解释了qsort要调用的函数的功能比较
+
+好。
+
+    shortsort函数：
+
+    这个函数的作用，上面已经有提到。就是当对快速排序递归调用的时候，如果遇到
+
+大小小于CUTOFF的数组，就调用这个函数来进行排序，而不是继续拆分数组进入下一层
+
+递归。因为虽然这里用的是基本排序方法，它的运行时间和O(n^2)成比例，但是如果是
+
+只有8个元素，它的速度比需要递归的快速排序要快得多。另外，在源代码的注释中，说
+
+这是一个插入排序(insertion sort)，但是我觉得这个应该是一个选择排序才对
+
+(selection sort)。至于为什么用选择排序而不用插入排序，应该是和选择排序的元素
+
+交换次数少有关系，只需要N-1次交换，而插入排序平均需要(N^2)/2次。之所以要选择
+
+交换次数少的算法，是因为有可能数组里面的单个元素的大小很大，使得交换成为最主
+
+要的性能瓶颈。
+
+    参数说明：
+
+       char *lo;    指向要排序的子数组的第一个元素的指针
+
+       char *hi;    指向要排序的子数组的最后一个元素的指针
+
+       size_t width;  数组中单个元素的大小
+
+       int (__cdecl *comp)(const void *,const void *);   用来比较两个元素大
+
+小的函数指针，这个函数是你在调用qsort的时候传入的参数，当前一个指针指向的元素
+
+小于后一个时，返回负数；当相等时，返回0；当大于时，返回正数。*/
+
+static void __cdecl shortsort (
+char *lo,
+char *hi,
+size_t width,
+int (__cdecl *comp)(const void *, const void *)
+)
+{
+char *p, *max;
+
+    /* Note: in assertions below, i and j are alway inside original bound of
+array to sort. */
+
+while (hi > lo) {
+ /* A[i] <= A[j] for i <= j, j > hi */
+max = lo;
+
+/*下面这个for循环作用是从lo到hi的元素中，选出最大的一个，max指针指向这
+
+个最大项*/
+        for (p = lo+width; p <= hi; p += width) {
+/* A[i] <= A[max] for lo <= i < p */
+if (comp(p, max) > 0) {
+max = p;
+}
+ /* A[i] <= A[max] for lo <= i <= p */
+}
+
+ /* A[i] <= A[max] for lo <= i <= hi */
+
+/*这里把最大项和hi指向的项向交换*/
+
+swap(max, hi, width);
+
+ /* A[i] <= A[hi] for i <= hi, so A[i] <= A[j] for i <= j, j >= hi */
+
+  /*hi向前移动一个指针。经过这一步，在hi后面的是已经排好序的比未排序部分
+
+所有的数要大的数。*/
+
+hi -= width;
+
+ /* A[i] <= A[j] for i <= j, j > hi, loop top condition established */
+}
+    /* A[i] <= A[j] for i <= j, j > lo, which implies A[i] <= A[j] for i < j,
+so array is sorted */
+}
+
+/*下面分析swap函数：
+
+      这个函数比较简单，就是交换两个项的操作，不过是用指针来实现的。
+
+*/
+
+static void __cdecl swap (
+char *a,
+char *b,
+size_t width
+)
+{
+char tmp;
+
+if ( a != b )
+       /* Do the swap one character at a time to avoid potential alignment
+problems. */
+while ( width-- ) {
+tmp = *a;
+*a++ = *b;
+*b++ = tmp;
+}
+}
+
+     /*下面是最重要的部分，qsort函数：*/
+
+/*使用的是非递归方式，所以这里有一个自定义的栈式结构，下面这个定义是栈的大小
+
+*/
+
+#define STKSIZ (8*sizeof(void*) - 2)
+
+void __cdecl qsort (
+void *base,
+size_t num,
+size_t width,
+int (__cdecl *comp)(const void *, const void *)
+)
+{
+    /* Note: the number of stack entries required is no more than
+1 + log2(num), so 30 is sufficient for any array */
+
+   /*由于使用了某些技巧（下面会讲到），使得栈大小的需求不会大于1+log2(num)，
+
+因此30的栈大小应该是足够了。为什么说是30呢？其实在上面STKSIZ的定义中可以计算出sizeof(void*)＝4，所以8*4-2＝30*/
+char *lo, *hi;              /* ends of sub-array currently sorting   数组
+
+的两端项指针，用来指明数组的上界和下界*/
+    char *mid;                  /* points to middle of subarray  数组的中间项指
+
+针*/
+char *loguy, *higuy;        /* traveling pointers for partition step  循
+
+环中的游动指针*/
+    size_t size;                /* size of the sub-array  数组的大小*/
+char *lostk[STKSIZ], *histk[STKSIZ];
+int stkptr;                 /* stack for saving sub-array to be processed  栈顶指针
+
+*/
+
+/*如果只有一个或以下的元素，则退出*/
+
+if (num < 2 || width == 0)
+return;                 /* nothing to do */
+
+stkptr = 0;                 /* initialize stack */
+
+lo = base;
+hi = (char *)base + width * (num-1);        /* initialize limits */
+
+    /* this entry point is for pseudo-recursion calling: setting
+lo and hi and jumping to here is like recursion, but stkptr is
+preserved, locals aren't, so we preserve stuff on the stack */
+
+    /*这个标签是伪递归的开始*/
+recurse:
+
+size = (hi - lo) / width + 1;        /* number of el's to sort */
+
+  /* below a certain size, it is faster to use a O(n^2) sorting method */
+
+   /*当size小于CUTOFF时，使用O(n2)的排序算法更快*/
+if (size <= CUTOFF) {
+shortsort(lo, hi, width, comp);
+}
+else {
+        /* First we pick a partitioning element.  The efficiency of the
+algorithm demands that we find one that is approximately the
+
+median
+of the values, but also that we select one fast.  We choose the
+median of the first, middle, and last elements, to avoid bad
+performance in the face of already sorted data, or data that is
+
+made
+up of multiple sorted runs appended together.  Testing shows that
+
+a
+median-of-three algorithm provides better performance than simply
+picking the middle element for the latter case. */
+
+      /*首先我们要选择一个分区项。算法的高效性要求我们找到一个近似数组中间值
+
+的项，但我们要保证能够很快找到它。我们选择数组的第一项、中间项和最后一项的中
+
+间值，来避免最坏情况下的低效率。测试表明，选择三个数的中间值，比单纯选择数组
+
+的中间项的效率要高。
+
+       我们解释一下为什么要避免最坏情况和怎样避免。在最坏情况下，快速排序算法
+
+的运行时间复杂度是O(n^2)。这种情况的一个例子是已经排序的文件。如果我们选择最
+
+后一个项作为划分项，也就是已排序数组中的最大项，我们分区的结果是分成了一个大
+
+小为N-1的数组和一个大小为1的数组，这样的话，我们需要的比较次数是N + N-1 + N-2
+
++ N-3 +...+2+1=(N+1)N/2=O(n^2)。而如果选择前 中 后三个数的中间值，这种最坏情况的
+
+数组也能够得到很好的处理。*/
+
+mid = lo + (size / 2) * width;      /* find middle element */
+
+ /*第一项 中间项 和最后项三个元素排序*/
+
+ /* Sort the first, middle, last elements into order */
+if (comp(lo, mid) > 0) {
+swap(lo, mid, width);
+}
+if (comp(lo, hi) > 0) {
+swap(lo, hi, width);
+}
+if (comp(mid, hi) > 0) {
+swap(mid, hi, width);
+}
+
+       /* We now wish to partition the array into three pieces, one
+
+consisting
+of elements <= partition element, one of elements equal to the
+partition element, and one of elements > than it.  This is done
+below; comments indicate conditions established at every step. */
+
+        /*下面要把数组分区成三块，一块是小于分区项的，一块是等于分区项的，而
+
+另一块是大于分区项的。*/
+
+       /*这里初始化的loguy 和 higuy两个指针，是在循环中用于移动来指示需要交换的两个元素的。higuy递减，loguy递增，所以下面的for循环总是可以终止。*/
+
+loguy = lo;
+higuy = hi;
+
+        /* Note that higuy decreases and loguy increases on every iteration,
+so loop must terminate. */
+for (;;) {
+            /* lo <= loguy < hi, lo < higuy <= hi,
+A[i] <= A[mid] for lo <= i <= loguy,
+A[i] > A[mid] for higuy <= i < hi,
+A[hi] >= A[mid] */
+
+            /* The doubled loop is to avoid calling comp(mid,mid), since some
+existing comparison funcs don't work when passed the same
+value for both pointers. */
+
+           /*开始移动loguy指针，直到A[loguy]>A[mid]*/
+
+if (mid > loguy) {
+do  {
+loguy += width;
+} while (loguy < mid && comp(loguy, mid) <= 0);
+}
+
+            /*如果移动到loguy>=mid的时候，就继续向后移动，使得A[loguy]>a
+
+[mid]。这一步实际上作用就是使得移动完loguy之后，loguy指针之前的元素都是不大于划分值的元素。*/
+if (mid <= loguy) {
+do  {
+loguy += width;
+} while (loguy <= hi && comp(loguy, mid) <= 0);
+}
+
+            /* lo < loguy <= hi+1, A[i] <= A[mid] for lo <= i < loguy,
+either loguy > hi or A[loguy] > A[mid] */
+
+           /*执行到这里的时候，lo<loguy<=hi+1，
+
+             对所有lo<=i<loguy，有A[i]<=A[mid]，
+
+             或者loguy>hi成立，或者A[loguy]>A[mid]成立
+
+            也就是说，loguy指针之前的项都比A[mid]要小或者等于它*/
+
+ 
+
+            /*下面移动higuy指针，直到A[higuy]<＝A[mid]*/
+
+do  {
+higuy -= width;
+} while (higuy > mid && comp(higuy, mid) > 0);
+
+            /* lo <= higuy < hi, A[i] > A[mid] for higuy < i < hi,
+either higuy == lo or A[higuy] <= A[mid] */
+
+   /*如果两个指针交叉了，则退出循环。*/
+
+if (higuy < loguy)
+break;
+
+            /* if loguy > hi or higuy == lo, then we would have exited, so
+A[loguy] > A[mid], A[higuy] <= A[mid],
+loguy <= hi, higuy > lo */
+
+           /*如果loguy>hi 或者higuy==lo，则上面一条break语句已经成立，我们已
+
+经跳出。
+
+             因此，此时A[loguy]>A[mid],A[higuy]<=A[mid],
+
+            loguy<=hi，higuy>lo。*/
+
+           /*交换两个指针指向的元素*/
+
+swap(loguy, higuy, width);
+
+            /* If the partition element was moved, follow it.  Only need
+to check for mid == higuy, since before the swap,
+A[loguy] > A[mid] implies loguy != mid. */
+
+           /*如果划分元素的位置移动了，我们要跟踪它。
+
+              因为在前面对loguy处理的两个循环中的第二个循环已经保证了loguy>mid,
+
+             即loguy指针不和mid指针相等。
+
+             所以我们只需要看一下higuy指针是否等于mid指针，
+
+            如果原来是mid==higuy成立了，那么经过刚才的交换，中间值项已经到了
+
+loguy指向的位置（注意：刚才是值交换了，但是并没有交换指针。当higuy和mid相等，交换higuy和loguy指向的内容，higuy依然等于mid），所以让mid＝loguy，重新跟踪中间值。*/
+
+if (mid == higuy)
+mid = loguy;
+
+            /* A[loguy] <= A[mid], A[higuy] > A[mid]; so condition at top
+of loop is re-established */
+
+            /*这个循环一直进行到两个指针交叉为止*/
+}
+
+        /*     A[i] <= A[mid] for lo <= i < loguy,
+A[i] > A[mid] for higuy < i < hi,
+A[hi] >= A[mid]
+higuy < loguy
+implying:
+higuy == loguy-1
+or higuy == hi - 1, loguy == hi + 1, A[hi] == A[mid] */
+
+       /*上一个循环结束之后，因为还没有执行loguy指针和higuy指针内容的交换，所以loguy指针的前面的数组元素都不大于划分值，而higuy指针之后的数组元素都大于划分值，所以此时有两种情况：
+
+       1)  higuy＝loguy－1
+
+       2)  higuy＝hi－1，loguy＝hi+1
+
+       其中第二种情况发生在一开始选择三个元素的时候，hi指向的元素和mid指向的元素值相等，而hi前面的元素全部都不大于划分值，使得移动loguy指针的时候，一直移动到了hi+1才停止，再移动higuy指针的时候，higuy指针移动一步就停止了，停在hi－1处。
+
+       */
+
+        /* Find adjacent elements equal to the partition element.  The
+doubled loop is to avoid calling comp(mid,mid), since some
+existing comparison funcs don't work when passed the same value
+for both pointers. */
+
+higuy += width;
+if (mid < higuy) {
+do  {
+higuy -= width;
+} while (higuy > mid && comp(higuy, mid) == 0);
+}
+if (mid >= higuy) {
+do  {
+higuy -= width;
+} while (higuy > lo && comp(higuy, mid) == 0);
+}
+
+        /* OK, now we have the following:
+higuy < loguy
+lo <= higuy <= hi
+A[i]  <= A[mid] for lo <= i <= higuy
+A[i]  == A[mid] for higuy < i < loguy
+A[i]  >  A[mid] for loguy <= i < hi
+A[hi] >= A[mid] */
+
+       /*经过上面的处理，higuy指针和之前的都是小于等于A[mid]的数，而higuy指针
+
+和loguy指针之间的是等于A[mid]的数，而loguy指针和之后的是大于A[mid]的数。实际上我们可以看到，higuy指针前面仍然可能有等于A[mid]的数，但是这样的三路划分之后，确实能够在一定程度上面减少子数组的大小。优化了程序的效率。*/
+
+        /* We've finished the partition, now we want to sort the subarrays
+[lo, higuy] and [loguy, hi].
+We do the smaller one first to minimize stack usage.
+We only sort arrays of length 2 or more.*/
+
+       /*我们现在已经完成了分区，可以开始对子数列[lo,higuy]和[loguy,hi]的排序
+
+。
+
+         我们先处理小的那个数列，这样可以避免最坏情况下栈大小和N成比例的情况
+
+。
+
+         我们可以想像一下，对于一个已经排序的数组，如果每次分成N-1和1的数组，
+
+        而我们又每次都先处理N-1那一半，
+
+        那么我们的递归深度就是和N成比例，这样对于大N，栈空间的开销是很大的。
+
+        如果先处理1的那一半，栈里面最多只有2项。
+
+        当划分元素刚好在数组中间时，栈的长度是logN。
+
+         对于栈的操作，就是先把大的数组信息入栈。
+
+       */
+
+if ( higuy - lo >= hi - loguy ) {
+if (lo < higuy) {
+lostk[stkptr] = lo;
+histk[stkptr] = higuy;
+++stkptr;
+}                           /* save big recursion for later */
+
+if (loguy < hi) {
+lo = loguy;
+goto recurse;           /* do small recursion */
+}
+}
+else {
+if (loguy < hi) {
+lostk[stkptr] = loguy;
+histk[stkptr] = hi;
+++stkptr;               /* save big recursion for later */
+}
+
+if (lo < higuy) {
+hi = higuy;
+goto recurse;           /* do small recursion */
+}
+}
+}
+
+    /* We have sorted the array, except for any pending sorts on the stack.
+Check if there are any, and do them. */
+
+   /*出栈操作，直到栈为空，退出循环*/
+
+--stkptr;
+if (stkptr >= 0) {
+lo = lostk[stkptr];
+hi = histk[stkptr];
+goto recurse;           /* pop subarray from stack */
+}
+else
+return;                 /* all subarrays done */
+}
+
+qsort的源代码基本上就分析完了，我们已经初步了解了小子数组截取（CUTOFF），三路划分，小子数组优先处理等技术的优点。
+
+其实，std::sort是一个改进版的qsort，我们通过分析std::sort，可以了解到qsort函数的优点和不足之处，方便我们更好地理解qsort函数的性质，从而深刻理解快速排序的算法思想。
+
+    我先介绍一下我分析的时候用的源代码。代码很简单，就是一个函数调用，排序随机生成的数组：
+
+#include "stdlib.h"
+#include "time.h"
+#include <algorithm>
+using namespace std;
+
+int A[50];
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+int i;
+srand(time(NULL));
+for (i=0;i<50;i++) A[i]=rand();
+std::sort(A,A+50);
+return 0;
+}
+
+    在std:sort这一行下一个断点，然后跟踪进去就可以看到如下代码：
+
+template<class _RanIt> inline
+void sort(_RanIt _First, _RanIt _Last)
+{ // order [_First, _Last), using operator<
+_Sort(_First, _Last, _Last - _First);
+}
+
+    实际上sort又调用了_Sort函数，我们再跟进：
+
+template<class _RanIt,
+class _Diff> inline
+void _Sort(_RanIt _First, _RanIt _Last, _Diff _Ideal)
+{ // order [_First, _Last), using operator<
+_Diff _Count;
+for (; _ISORT_MAX < (_Count = _Last - _First) && 0 < _Ideal; )
+{ // divide and conquer by quicksort
+pair<_RanIt, _RanIt> _Mid = _Unguarded_partition(_First, _Last);
+_Ideal /= 2, _Ideal += _Ideal / 2; // allow 1.5 log2(N) divisions
+
+  if (_Mid.first - _First < _Last - _Mid.second) // loop on larger half
+   _Sort(_First, _Mid.first, _Ideal), _First = _Mid.second;
+else
+_Sort(_Mid.second, _Last, _Ideal), _Last = _Mid.first;
+}
+
+ if (_ISORT_MAX < _Count)
+{ // heap sort if too many divisions
+  std::make_heap(_First, _Last);
+std::sort_heap(_First, _Last);
+}
+else if (1 < _Count)
+_Insertion_sort(_First, _Last); // small, insertion sort
+ }
+
+    代码看起来很简单不是吗？我们逐行来分析一下：
+
+for (; _ISORT_MAX < (_Count = _Last - _First) && 0 < _Ideal; )
+
+    这里的_ISORT_MAX定义为32，也就是说，如果子数组的大小小于32，则使用后面的排序方法，而不进行快速排序。我在本系列文章的第一篇里面讲到，qsort函数使用了小子数组截取的方法，这里就是这种方法的体现。但是在sort函数里面又有所不同，它的截取值比较大（qsort中是8）。其实这是因为，在面对比较大的数组时，经过快速排序以后，数组已经基本有序，所以在运行插入排序的时候，只需要很少数量的比较和交换就可以完成排序。对插入排序不是很了解的读者，可以查一下相关的资料。
+
+pair<_RanIt, _RanIt> _Mid = _Unguarded_partition(_First, _Last);
+
+    这里是快速排序的分区工作。我们在这里先跳过，在后面的分析中可以看到，这个分区是一个完全的三路划分分区算法。qsort中也使用了三路划分，不过并不是十分的完全。
+
+  _Ideal /= 2, _Ideal += _Ideal / 2; // allow 1.5 log2(N) divisions
+
+    这里的_Ideal，我认为应该是用来控制递归深度的变量。
+
+  if (_Mid.first - _First < _Last - _Mid.second) // loop on larger half
+   _Sort(_First, _Mid.first, _Ideal), _First = _Mid.second;
+else
+_Sort(_Mid.second, _Last, _Ideal), _Last = _Mid.first;
+}
+
+    如果看过qsort源代码的朋友应该对上面这里有点感觉吧。这里是和qsort对应的小子数组先处理方法。
+
+ if (_ISORT_MAX < _Count)
+{ // heap sort if too many divisions
+std::make_heap(_First, _Last);
+std::sort_heap(_First, _Last);
+}
+else if (1 < _Count)
+_Insertion_sort(_First, _Last); // small, insertion sort
+ }
+
+    这个部分是针对小数组或者是达到了递归深度限制的时候使用的排序。当达到了递归深度，就不使用上面的递归快速排序了。这种情况下有两种可能：一种是数组大小还比32要大，另一种是比大小比32小。对前一种情况，使用堆排序。而后一种情况，则使用虽然时间复杂度是二次但对小数组有效的插入排序。
+
+    好了，_Sort这里讲了个大概了。我们下面分_Unguarded_partition函数。由于代码较长，我们在中间插入解释。
+
+template<class _RanIt> inline
+pair<_RanIt, _RanIt> _Unguarded_partition(_RanIt _First, _RanIt _Last)
+{ // partition [_First, _Last), using operator<
+_RanIt _Mid = _First + (_Last - _First) / 2; // sort median to _Mid
+_Median(_First, _Mid, _Last - 1);
+
+    这里是调用获得枢轴值的函数。我大概讲一下它的作用，有兴趣的朋友可以跟进里面看看。主要分两种情况，如果数组大小大于40，则把数组分成8份，这样就有9个端点，123，456，789，这样三次三元素排序，然后再258排序，返回5。如果小于40，就只对首、中、尾三元素排序，返回中间值。
+ _RanIt _Pfirst = _Mid;
+_RanIt _Plast = _Pfirst + 1;
+
+    上面这两个指针是在算法中最重要的变量。等一下会讲到。
+
+ while (_First < _Pfirst
+&& !(*(_Pfirst - 1) < *_Pfirst)
+&& !(*_Pfirst < *(_Pfirst - 1)))
+--_Pfirst;
+
+    这个while循环的作用是把_Pfirst指针向前移动，直到遇到和*_Pfirst不等的项为止。这里的作用就是把中间和*_Mid相等的项的分区范围向前拉动。
+ while (_Plast < _Last
+&& !(*_Plast < *_Pfirst)
+&& !(*_Pfirst < *_Plast))
+++_Plast;
+
+    这里的while循环和前面的差不多，不过要注意的是，前面的指针_Pfirst指向的值始终和*Mid相等；而_Plast指向和*Mid相等的项的后一个。
+
+ _RanIt _Gfirst = _Plast;
+_RanIt _Glast = _Pfirst;
+
+    好了，执行完上面两个循环。这时候在区间[_Pfirst,_Plast-1]里面的所有项都等于枢轴的值。我们再增加了两个指针。这两个指针就是用来交换大值和小值的。
+
+ for (; ; )
+{ // partition
+for (; _Gfirst < _Last; ++_Gfirst)
+if (*_Pfirst < *_Gfirst)
+;
+else if (*_Gfirst < *_Pfirst)
+break;
+else
+    std::iter_swap(_Plast++, _Gfirst);
+
+    留意一下这个循环。它的作用是不断移动_Gfirst指针向后寻找比枢轴小的数，找到的时候跳出。注意里面有一个判断*_Gfirst是否等于*_Pfirst的条件分支，如果相等，证明_Gfirst指向的项和枢轴相等（因为*_Pfirst和枢轴相等）。这时，要把它和_Plast指针指向的项交换，我们刚才讲过，和枢轴相等的区间是[_Pfirst,_Plast-1]，因此这个操作相当于把和枢轴相等的一个数又并在了它的区间的右边。然后_Plast向后移动，方便后面继续并入相等值。
+  for (; _First < _Glast; --_Glast)
+if (*(_Glast - 1) < *_Pfirst)
+;
+else if (*_Pfirst < *(_Glast - 1))
+ break;
+else
+    std::iter_swap(--_Pfirst, _Glast - 1);
+
+这个循环和上一个作用是一样的，不过有点不同的是_Glast-1这个指针才是指向要判断的项。这是因为一开始的时令_Glast=_Pfirst。这个时候的区间表示如下：
+
+    [_Pfirst , _Plast-1] ＝ *_Mid;
+
+    [_Glast , _Pfirst-1] <   *_Mid;
+
+    [_Plast , _Gfirst-1] >   *_Mid;
+
+    两个指针的情况：*(_Glast-1)>*_Mid;  *_Gfirst<*_Mid;
+
+  if (_Glast == _First && _Gfirst == _Last)
+return (pair<_RanIt, _RanIt>(_Pfirst, _Plast));
+
+这里是循环退出的惟一条件，即分区完毕。
+
+  if (_Glast == _First)
+{ // no room at bottom, rotate pivot upward
+   if (_Plast != _Gfirst)
+std::iter_swap(_Pfirst, _Plast);
+++_Plast;
+std::iter_swap(_Pfirst++, _Gfirst++);
+}
+
+    如果_Glast==_First，即前面已经没有空位了，这里采取的是把枢轴区间向后移动一个位置，方法是把_Pfirst和_Plast指向的项交换。然后交换_Pfirst和_Gfirst指向的项，即再交换一次大值和小值，保持前面介绍的区间状况。注意，在这个循环里面，上面提到的区间情况是始终的到满足的。
+  else if (_Gfirst == _Last)
+{ // no room at top, rotate pivot downward
+   if (--_Glast != --_Pfirst)
+std::iter_swap(_Glast, _Pfirst);
+std::iter_swap(_Pfirst, --_Plast);
+}
+
+    这里是后面没有空位的情况，和前面差不多，我就不多说了。
+  else
+std::iter_swap(_Gfirst++, --_Glast);
+
+    如果一切正常，就交换大值和小值，继续循环。
+  }
+}
+
+    好了。我们现在分析了std:sort的源代码了，虽然还有些子函数没有讲，但是我们已经可以从大概的情况中了解到了std::sort函数优于qsort的一些特点：对大数组采取9项取样，更完全的三路划分算法，更细致的对不同数组大小采用不同方法排序。
+
+
+网上的文章当提到std::sort和qsort的区别时，通常把它们的性能差异归因于qsort的反引用开销，我们在这里通过实验来测试看看是不是这样，并且判断std::sort的算法是否有较之于qsort代码更优的性能，或者反过来。
+
+
+
+
+        测试用的源代码如下：
+
+
+
+
+main.cpp 主函数所在的文件
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <algorithm>
+#include "m_qsort.cpp"
+#include "funcs.h"
+
+
+
+
+using namespace std;
+
+
+
+
+#define N 1000000
+
+
+
+
+int comp(const void* a,const void* b)
+{
+return *(int*)a-*(int*)b;
+}
+
+
+
+
+void main()
+{
+int i,j,*a,*b;
+clock_t st,et,tt[3]={0};
+a=(int*)malloc(sizeof(int)*N);
+b=(int*)malloc(sizeof(int)*N);
+
+
+
+
+ getchar();
+for (i=0;i<10;i++)
+{
+m_srand((long)time(NULL));
+for (j=0;j<N;j++) a[j]=m_rand();
+
+
+
+
+
+
+
+  memcpy(b,a,N*sizeof(int));
+st=clock();
+qsort(b,N,sizeof(int),comp);
+et=clock();
+tt[0]+=(et-st);
+
+
+
+
+
+
+
+  memcpy(b,a,N*sizeof(int));
+st=clock();
+m_qsort2(b,N);
+et=clock();
+tt[1]+=(et-st);
+
+
+
+  memcpy(b,a,N*sizeof(int));
+st=clock();
+sort(b,b+N);
+et=clock();
+tt[2]+=(et-st);
+}
+printf("qsort %d ms\n",tt[0]/10);
+printf("m_qsort2 %d ms\n",tt[1]/10);
+printf("sort %d ms\n",tt[2]/10);
+
+
+
+
+ getchar();
+}
+
+
+
+
+funcs.h
+void m_srand(long seed);
+int m_rand();
+
+
+
+
+m_qsort.cpp  用于测试qsort修改版的代码
+
+
+
+
+#include <algorithm>
+using namespace std;
+
+
+
+
+/* Always compile this module for speed, not size */
+#pragma optimize("t", on)
+
+
+
+
+/* prototypes for local routines */
+template<class _RanIt>
+static void __cdecl shortsort(_RanIt *lo, _RanIt *hi);
+
+
+
+
+#define CUTOFF 8            /* testing shows that this is good value */
+
+
+
+
+#define STKSIZ (8*sizeof(void*) - 2)
+
+
+
+
+
+
+
+template<class _RanIt>
+void m_qsort (
+_RanIt base,
+size_t num
+)
+{
+_RanIt lo, hi;              /* ends of sub-array currently sorting */
+_RanIt mid;                  /* points to middle of subarray */
+_RanIt loguy, higuy;        /* traveling pointers for partition step */
+size_t size;                /* size of the sub-array */
+_RanIt lostk[STKSIZ], histk[STKSIZ];
+int stkptr;                 /* stack for saving sub-array to be processed */
+
+
+
+
+    if (num < 2)
+return;                 /* nothing to do */
+
+
+
+
+    stkptr = 0;                 /* initialize stack */
+
+
+
+
+    lo = base;
+hi = base +num-1;        /* initialize limits */
+
+
+
+
+recurse:
+
+
+
+
+    size = hi - lo + 1;        /* number of el's to sort */
+
+
+
+
+    /* below a certain size, it is faster to use a O(n^2) sorting method */
+if (size <= CUTOFF) {
+shortsort(lo, hi);
+//_Insertion_sort(lo,hi+1);
+}
+else {
+
+
+
+
+        mid = lo + size / 2;      /* find middle element */
+
+
+
+
+        /* Sort the first, middle, last elements into order */
+if (*lo>*mid) {
+iter_swap(lo, mid);
+}
+if (*lo>*hi) {
+iter_swap(lo, hi);
+}
+if (*mid>*hi) {
+iter_swap(mid, hi);
+}
+
+
+
+
+        loguy = lo;
+higuy = hi;
+
+
+
+
+        for (;;) {
+
+
+
+
+            if (mid > loguy) {
+do  {
+loguy ++;
+} while (loguy < mid && *loguy<=*mid);
+}
+if (mid <= loguy) {
+do  {
+loguy ++;
+} while (loguy <= hi && *loguy<=*mid);
+}
+
+
+
+
+            /* lo < loguy <= hi+1, A[i] <= A[mid] for lo <= i < loguy,
+either loguy > hi or A[loguy] > A[mid] */
+
+
+
+
+            do  {
+higuy --;
+} while (higuy > mid && *higuy> *mid);
+
+
+
+
+            if (higuy < loguy)
+break;
+
+
+
+
+            iter_swap(loguy, higuy);
+
+
+
+
+            if (mid == higuy)
+mid = loguy;
+}
+
+
+
+
+        higuy ++;
+if (mid < higuy) {
+do  {
+higuy --;
+} while (higuy > mid && *higuy==*mid);
+}
+if (mid >= higuy) {
+do  {
+higuy --;
+} while (higuy > lo && *higuy==*mid);
+}
+
+
+
+
+        if ( higuy - lo >= hi - loguy ) {
+if (lo < higuy) {
+lostk[stkptr] = lo;
+histk[stkptr] = higuy;
+++stkptr;
+}                           /* save big recursion for later */
+
+
+
+
+            if (loguy < hi) {
+lo = loguy;
+goto recurse;           /* do small recursion */
+}
+}
+else {
+if (loguy < hi) {
+lostk[stkptr] = loguy;
+histk[stkptr] = hi;
+++stkptr;               /* save big recursion for later */
+}
+
+
+
+
+            if (lo < higuy) {
+hi = higuy;
+goto recurse;           /* do small recursion */
+}
+}
+}
+
+
+
+
+    --stkptr;
+if (stkptr >= 0) {
+lo = lostk[stkptr];
+hi = histk[stkptr];
+goto recurse;           /* pop subarray from stack */
+}
+else
+{
+return;                 /* all subarrays done */
+}
+}
+
+
+
+
+template<class _RanIt>
+static void __cdecl shortsort (
+_RanIt *lo,
+_RanIt *hi
+)
+{
+_RanIt *p, *max;
+
+
+
+
+    while (hi > lo) {
+/* A[i] <= A[j] for i <= j, j > hi */
+max = lo;
+for (p = lo+1; p <= hi; p ++) {
+/* A[i] <= A[max] for lo <= i < p */
+if (*p>*max) {
+max = p;
+}
+}
+
+
+
+
+        iter_swap(max, hi);
+
+
+
+
+        hi --;
+}
+}
+
+
+
+
+m_rand.cpp 用于生成0~0x00ffffff之间随机数的代码
+
+
+
+
+static long holdrand;
+
+
+
+
+void m_srand(long seed)
+{
+holdrand=seed;
+}
+
+
+
+
+int m_rand()
+{
+return ((holdrand = holdrand * 214013L + 2531011L) & 0x00ffffff);
+}
+
+
+
+
+       
+
+
+
+
+        主函数分成三段测试代码，每段测试一个函数：qsort、m_qsort、std::sort。其中m_qsort是复制qsort的代码过来然后修改而成。测试数据共有10组，取平均值输出。下面我们开始测试。
+
+
+
+
+        先测试qsort和std::sort两个函数，把另外两段测试代码注释掉以节约时间：
+
+
+
+
+qsort 1156 ms
+sort 860 ms
+
+
+
+
+        实验证明，std::sort比qsort快25.6%。我们把N扩大为两倍2000000，即数组大小扩大成两倍，测试结果：
+
+
+
+
+qsort 2416 ms
+sort 1828 ms
+
+
+
+
+        实验结果表明在数据增长成两倍的时候，qsort运行时间增长为原来的2.09倍；sort增长为原来的2.13倍。sort算法的增长速度稍快。
+
+
+
+
+        std::sort比qsort快25.6%，到底快在哪里呢？我们现在来看看。我们修改了qsort，成为m_qsort，它使用了模板，不需要传入函数指针，而且换掉了原来低效的逐个字节交换的swap函数，用iter_swap代替。比较三个函数：
+
+
+
+
+qsort 1131 ms
+m_qsort 640 ms
+sort 857 ms
+
+
+
+
+        我们发现，经过对qsort函数进行修改之后，它竟然比sort函数快25.3%！这说明qsort函数的主要开销在于直接对字节指针的操作。这同时也说明，对于基本没有重复键的数据来说，qsort比sort要快。
+
+
+
+
+        我们再来比较一下特殊情况。使用系统自带的srand函数和rand函数，生成0~0x00007fff的数，这样1000000个数中就会每个数平均有31个重复值。我们看一下运行结果：
+
+
+
+
+qsort 894 ms
+m_qsort 519 ms
+sort 554 ms
+
+
+
+
+        可以清楚地看到，在数据重复比较多的时候，sort的性能明显得到了提高。考虑一种极限情况，所有数据相同，我们修改代码再运行一次：
+
+
+
+
+qsort 72 ms
+m_qsort 42 ms
+sort 24 ms
+
+
+
+
+        这次很明显了，对于重复数据，sort函数的处理能力明显强于qsort。这主要是和sort函数三路划分分得更细致有关。
+
+
+
+
+        我们接着考虑递增和递减数组。修改代码然后测试，结果如下：
+
+
+
+
+qsort 497 ms
+m_qsort 234 ms
+sort 203 ms
+
+
+
+
+        sort函数的运行时间比m_qsort要少。我们可以看到，相比随机数据，有序数据在快速排序的时候得到了很好的优化。再来看递减的数组。
+
+
+
+
+qsort 534 ms
+m_qsort 261 ms
+sort 338 ms
+
+
+
+
+        递减数组中sort函数略逊于qsort改进版，这大概是因为sort函数取样9个点造成过多交换开销造成的。
+
+
+
+
+        从整体上看，我们得出这样一个结论：对于随机基本无重复的数据，qsort的改进版比sort函数优秀；而sort函数由于对分区比较细致，所以处理重复数据较多的数组则会比较优化。而我们平常所遇到的数据，比如出生年月，性别等，都有很多的重复值，所以sort函数就成为了排序这些数据的首选。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

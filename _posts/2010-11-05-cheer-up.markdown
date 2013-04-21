@@ -1,0 +1,41 @@
+---
+author: sunsj1231
+comments: true
+date: 2010-11-05 17:39:53
+layout: post
+slug: cheer-up
+title: Cheer up
+wordpress_id: 8001
+categories:
+- coding
+---
+
+After watching a movie ,i got a thing i wondering to do.
+
+
+
+
+so i write a plan here to prove to forget.The totally goal of the project has three point,and as below:
+
+
+
+
+1.boot from the USB port
+
+
+
+
+2.implement TCP/IP protocol
+
+
+
+
+3.can talk with each other,and work parallely.
+
+
+
+
+
+
+
+i know it is a huge challenge for me,but i will take.
