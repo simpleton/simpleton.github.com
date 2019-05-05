@@ -78,4 +78,6 @@ theme: hexo-theme-next
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type:
+  type: git
+  repo: git@github.com:simpleton/simpleton.github.com.git
+  branch: master
