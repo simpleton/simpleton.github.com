@@ -695,6 +695,167 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://simsun.me/04/22/2014/use-promise-pattern-in-android/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sim Sun">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Sim is a fool">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/04/22/2014/use-promise-pattern-in-android/" class="post-title-link" itemprop="url">Use Promise Pattern in Android</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 04-22-2014 00:00:00" itemprop="dateCreated datePublished" datetime="2014-04-22T00:00:00-07:00">04-22-2014</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 05-05-2019 03:15:56" itemprop="dateModified" datetime="2019-05-05T03:15:56-07:00">05-05-2019</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>I’ve read deep in NodeJS today. Although I haven’t written nodeJS for a long time, but I learn a lot for the book.<br>Recommanded for you.</p>
+<p><img src="http://img5.douban.com/lpic/s27134708.jpg" alt="deep in NodeJS"></p>
+<h1 id="Promise-Defered"><a href="#Promise-Defered" class="headerlink" title="Promise/Defered"></a>Promise/Defered</h1><p>Promise pattern is wilderly used in JQuery framework, it solved Pyramid of Doom issue. And it quit useful in Android development.<br>In our company project, we always wrapped a asynchronously framework for network request. some complex requirement will be implemented by request server several times, and the code will be ugly.</p>
+<p>Promise pattern will help us to solve this proplem.I found a <a href="https://github.com/jdeferred/jdeferred" target="_blank" rel="noopener">java framework to implement promise pattern</a>.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Deferred deferred = <span class="keyword">new</span> DeferredObject();</span><br><span class="line">Promise promise = deferred.promise();</span><br><span class="line">promise.done(<span class="keyword">new</span> DoneCallback() &#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDone</span><span class="params">(Object result)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;).fail(<span class="keyword">new</span> FailCallback() &#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFail</span><span class="params">(Object rejection)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;).progress(<span class="keyword">new</span> ProgressCallback() &#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onProgress</span><span class="params">(Object progress)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;).always(<span class="keyword">new</span> AlwaysCallback() &#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAlways</span><span class="params">(State state, Object result, Object rejection)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DeferredManager dm = <span class="keyword">new</span> DefaultDeferredManager();</span><br><span class="line">Promise p1, p2, p3;</span><br><span class="line"><span class="comment">// initialize p1, p2, p3</span></span><br><span class="line">dm.when(p1, p2, p3)</span><br><span class="line">  .done(…)</span><br><span class="line">     .fail(…)</span><br></pre></td></tr></table></figure>
+<p>It makes you source code more readable.</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://simsun.me/01/27/2014/how-does-dalvik-implement-thread-priority/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -900,7 +1061,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-count">4</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>

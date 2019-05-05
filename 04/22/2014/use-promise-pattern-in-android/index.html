@@ -96,18 +96,20 @@
 
 
 
-  <meta name="description" content="上一次的抢购出现了库存是 -1 的问题，说明我们lock ticket的逻辑是非排他的，临界区没有被锁住。今天仔细研究了下DB的事务，发现以前的理解有一些偏差。 tl;dr在查询库存的语句加入 for update 来让这一行加入悲观锁，其余同事在查询transcation会被hold住，有效fix读到脏库存的问题。 概念事务的特征：原子性（Atomiocity）、一致性（Consistency）">
-<meta name="keywords" content="DB,Backend,Mysql">
+  <meta name="description" content="I’ve read deep in NodeJS today. Although I haven’t written nodeJS for a long time, but I learn a lot for the book.Recommanded for you.  Promise/DeferedPromise pattern is wilderly used in JQuery framew">
+<meta name="keywords" content="android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mysql 事务">
-<meta property="og:url" content="http://simsun.me/12/01/2015/db-transcation/index.html">
+<meta property="og:title" content="Use Promise Pattern in Android">
+<meta property="og:url" content="http://simsun.me/04/22/2014/use-promise-pattern-in-android/index.html">
 <meta property="og:site_name" content="Sim is a fool">
-<meta property="og:description" content="上一次的抢购出现了库存是 -1 的问题，说明我们lock ticket的逻辑是非排他的，临界区没有被锁住。今天仔细研究了下DB的事务，发现以前的理解有一些偏差。 tl;dr在查询库存的语句加入 for update 来让这一行加入悲观锁，其余同事在查询transcation会被hold住，有效fix读到脏库存的问题。 概念事务的特征：原子性（Atomiocity）、一致性（Consistency）">
+<meta property="og:description" content="I’ve read deep in NodeJS today. Although I haven’t written nodeJS for a long time, but I learn a lot for the book.Recommanded for you.  Promise/DeferedPromise pattern is wilderly used in JQuery framew">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-05-05T09:46:45.673Z">
+<meta property="og:image" content="http://img5.douban.com/lpic/s27134708.jpg">
+<meta property="og:updated_time" content="2019-05-05T10:15:56.518Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mysql 事务">
-<meta name="twitter:description" content="上一次的抢购出现了库存是 -1 的问题，说明我们lock ticket的逻辑是非排他的，临界区没有被锁住。今天仔细研究了下DB的事务，发现以前的理解有一些偏差。 tl;dr在查询库存的语句加入 for update 来让这一行加入悲观锁，其余同事在查询transcation会被hold住，有效fix读到脏库存的问题。 概念事务的特征：原子性（Atomiocity）、一致性（Consistency）">
+<meta name="twitter:title" content="Use Promise Pattern in Android">
+<meta name="twitter:description" content="I’ve read deep in NodeJS today. Although I haven’t written nodeJS for a long time, but I learn a lot for the book.Recommanded for you.  Promise/DeferedPromise pattern is wilderly used in JQuery framew">
+<meta name="twitter:image" content="http://img5.douban.com/lpic/s27134708.jpg">
 
 
 
@@ -115,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="http://simsun.me/12/01/2015/db-transcation/">
+  <link rel="canonical" href="http://simsun.me/04/22/2014/use-promise-pattern-in-android/">
 
 
 
@@ -125,7 +127,7 @@
   };
 </script>
 
-  <title>Mysql 事务 | Sim is a fool</title>
+  <title>Use Promise Pattern in Android | Sim is a fool</title>
   
 
 
@@ -294,7 +296,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://simsun.me/12/01/2015/db-transcation/">
+    <link itemprop="mainEntityOfPage" href="http://simsun.me/04/22/2014/use-promise-pattern-in-android/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sim Sun">
@@ -311,7 +313,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Mysql 事务
+          <h1 class="post-title" itemprop="name headline">Use Promise Pattern in Android
 
               
             
@@ -337,7 +339,7 @@
                 
               
 
-              <time title="Created: 12-01-2015 02:33:40" itemprop="dateCreated datePublished" datetime="2015-12-01T02:33:40-08:00">12-01-2015</time>
+              <time title="Created: 04-22-2014 00:00:00" itemprop="dateCreated datePublished" datetime="2014-04-22T00:00:00-07:00">04-22-2014</time>
             
 
             
@@ -354,7 +356,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 05-05-2019 02:46:45" itemprop="dateModified" datetime="2019-05-05T02:46:45-07:00">05-05-2019</time>
+                <time title="Modified: 05-05-2019 03:15:56" itemprop="dateModified" datetime="2019-05-05T03:15:56-07:00">05-05-2019</time>
               
             
           </span>
@@ -388,51 +390,13 @@
       
 
       
-        <p>上一次的抢购出现了库存是 -1 的问题，说明我们lock ticket的逻辑是非排他的，临界区没有被锁住。今天仔细研究了下DB的事务，发现以前的理解有一些偏差。</p>
-<h2 id="tl-dr"><a href="#tl-dr" class="headerlink" title="tl;dr"></a>tl;dr</h2><p>在查询库存的语句加入 <code>for update</code> 来让这一行加入悲观锁，其余同事在查询transcation会被hold住，有效fix读到脏库存的问题。</p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>事务的特征：原子性（Atomiocity）、一致性（Consistency）、隔离性（Isolation）和持久性（Durability），这四个特性简称ACID特性。</p>
-<ul>
-<li><p>原子性：事务是数据库的逻辑工作单位，事务中包括的所有操作要么都做，要么都不做。</p>
-</li>
-<li><p>一致性：事务执行的结果必须是使数据库从一个一致性的状态变到另外一个一致性状态。</p>
-</li>
-<li><p>隔离性：一个事务的执行不能被其他事务干扰。即一个事务内部的操作及使用的数据对其他事务是隔离的，并发执行的各个事务之间互相不干扰。</p>
-</li>
-<li><p>持久性：一个事务一旦成功提交，对数据库中数据的修改就是持久性的。接下来其他的其他操作或故障不应该对其执行结果有任何影响。</p>
-</li>
-</ul>
-<h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p>首先被begin和commit（或rollback）包含的逻辑是原子的，即要不一起成功，要不一起失败。这一点我们的理解没有错误。</p>
-<h2 id="隔离性（Ioslation-Level）"><a href="#隔离性（Ioslation-Level）" class="headerlink" title="隔离性（Ioslation Level）"></a>隔离性（Ioslation Level）</h2><p>这一点是我们以前理解错的，对于我们使用的RDS的InnoDB默R认的Ioslation Level为READ COMMITED.</p>
-<ol>
-<li><p>READ UNCOMMITED<br>SELECT的时候允许脏读，即SELECT会读取其他事务修改而还没有提交的数据。</p>
-</li>
-<li><p>READ COMMITED<br>SELECT的时候无法重复读，即同一个事务中两次执行同样的查询语句，若在第一次与第二次查询之间时间段，其他事务又刚好修改了其查询的数据且提交了，则两次读到的数据不一致。</p>
-</li>
-<li><p>REPEATABLE READ<br>SELECT的时候可以重复读，即同一个事务中两次执行同样的查询语句，得到的数据始终都是一致的。实现的原理是，在一个事务对数据行执行读取或写入操作时锁定了这些数据行。<br>但是这种方式又引发了幻想读的问题。因为只能锁定读取或写入的行，不能阻止另一个事务插入数据，后期执行同样的查询会产生更多的结果。</p>
-</li>
-<li><p>SERIALIZABLE<br>与可重复读的唯一区别是，默认把普通的SELECT语句改成SELECT …. LOCK IN SHARE MODE。即为查询语句涉及到的数据加上共享琐，阻塞其他事务修改真实数据。serializable模式中，事务被强制为依次执行。这是SQL标准建议的默认行为。</p>
-</li>
-</ol>
-<p>我们原先一直认为应为SERIALIZABLE, 导致我们读到的数据是不正确的。</p>
-<h3 id="锁机制"><a href="#锁机制" class="headerlink" title="锁机制"></a>锁机制</h3><ul>
-<li>共享锁（乐观锁）：由读表操作加上的锁，加锁后其他用户只能获取该表或行的共享锁，不能获取排它锁，也就是说只能读不能写</li>
-<li>排他锁（悲观锁）：由写表操作加上的锁，加锁后其他用户不能获取该表或行的任何锁，典型是mysql事务中的</li>
-</ul>
-<p>其命令分别为：共享锁(share mode), 排他锁(for update)</p>
-<p>这里我们需要的是排他锁，即当一个操作在lock的时候，其他事务应当被hold住，而不是读到以前的旧数据。</p>
-<h4 id="排他锁例子"><a href="#排他锁例子" class="headerlink" title="排他锁例子"></a>排他锁例子</h4><p>我们做一个小实现，开2个sql的terminal(分别为T1和T2).</p>
-<p><em>T1 RUN</em>:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> begin;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line"><span class="meta">mysql&gt;</span> select * from t1 where id='3' for update;</span><br><span class="line">[result]</span><br></pre></td></tr></table></figure></p>
-<p><em>T2 RUN</em>:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> select * from t1;</span><br></pre></td></tr></table></figure></p>
-<p>这一句查询是OK的</p>
-<p><em>T2 查询非锁定记录</em><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">2</span> <span class="keyword">for</span> <span class="keyword">update</span>;</span><br></pre></td></tr></table></figure></p>
-<p><em>T2 查询锁定记录</em><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">for</span> <span class="keyword">update</span>;</span><br></pre></td></tr></table></figure></p>
-<p>这样会被hold住</p>
-<h4 id="表加锁解锁"><a href="#表加锁解锁" class="headerlink" title="表加锁解锁"></a>表加锁解锁</h4><ul>
-<li>LOCK TABLES tablename WRITE;</li>
-<li>LOCK TABLES tablename READ;</li>
-<li>UNLOCK TABLE;S</li>
-</ul>
-<p>###事务所用到的表<br>information_schema<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> innodb_trx;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> innodb_lock_waits;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> innodb_locks;</span><br></pre></td></tr></table></figure></p>
+        <p>I’ve read deep in NodeJS today. Although I haven’t written nodeJS for a long time, but I learn a lot for the book.<br>Recommanded for you.</p>
+<p><img src="http://img5.douban.com/lpic/s27134708.jpg" alt="deep in NodeJS"></p>
+<h1 id="Promise-Defered"><a href="#Promise-Defered" class="headerlink" title="Promise/Defered"></a>Promise/Defered</h1><p>Promise pattern is wilderly used in JQuery framework, it solved Pyramid of Doom issue. And it quit useful in Android development.<br>In our company project, we always wrapped a asynchronously framework for network request. some complex requirement will be implemented by request server several times, and the code will be ugly.</p>
+<p>Promise pattern will help us to solve this proplem.I found a <a href="https://github.com/jdeferred/jdeferred" target="_blank" rel="noopener">java framework to implement promise pattern</a>.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Deferred deferred = <span class="keyword">new</span> DeferredObject();</span><br><span class="line">Promise promise = deferred.promise();</span><br><span class="line">promise.done(<span class="keyword">new</span> DoneCallback() &#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDone</span><span class="params">(Object result)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;).fail(<span class="keyword">new</span> FailCallback() &#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFail</span><span class="params">(Object rejection)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;).progress(<span class="keyword">new</span> ProgressCallback() &#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onProgress</span><span class="params">(Object progress)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;).always(<span class="keyword">new</span> AlwaysCallback() &#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAlways</span><span class="params">(State state, Object result, Object rejection)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DeferredManager dm = <span class="keyword">new</span> DefaultDeferredManager();</span><br><span class="line">Promise p1, p2, p3;</span><br><span class="line"><span class="comment">// initialize p1, p2, p3</span></span><br><span class="line">dm.when(p1, p2, p3)</span><br><span class="line">  .done(…)</span><br><span class="line">     .fail(…)</span><br></pre></td></tr></table></figure>
+<p>It makes you source code more readable.</p>
 
       
     </div>
@@ -456,11 +420,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/DB/" rel="tag"># DB</a>
-          
-            <a href="/tags/Backend/" rel="tag"># Backend</a>
-          
-            <a href="/tags/Mysql/" rel="tag"># Mysql</a>
+            <a href="/tags/android/" rel="tag"># android</a>
           
         </div>
       
@@ -473,8 +433,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/04/22/2014/use-promise-pattern-in-android/" rel="next" title="Use Promise Pattern in Android">
-                <i class="fa fa-chevron-left"></i> Use Promise Pattern in Android
+              <a href="/01/27/2014/how-does-dalvik-implement-thread-priority/" rel="next" title="How does Dalvik implement Thread Priority">
+                <i class="fa fa-chevron-left"></i> How does Dalvik implement Thread Priority
               </a>
             
           </div>
@@ -483,8 +443,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/12/23/2015/android-startup-tutorial/" rel="prev" title="创业码农的一些建议">
-                创业码农的一些建议 <i class="fa fa-chevron-right"></i>
+              <a href="/12/01/2015/db-transcation/" rel="prev" title="Mysql 事务">
+                Mysql 事务 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -621,7 +581,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#tl-dr"><span class="nav-number">1.</span> <span class="nav-text">tl;dr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原子性"><span class="nav-number">3.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#隔离性（Ioslation-Level）"><span class="nav-number">4.</span> <span class="nav-text">隔离性（Ioslation Level）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#锁机制"><span class="nav-number">4.1.</span> <span class="nav-text">锁机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#排他锁例子"><span class="nav-number">4.1.1.</span> <span class="nav-text">排他锁例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#表加锁解锁"><span class="nav-number">4.1.2.</span> <span class="nav-text">表加锁解锁</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Promise-Defered"><span class="nav-number">1.</span> <span class="nav-text">Promise/Defered</span></a></li></ol></div>
             
 
           </div>
