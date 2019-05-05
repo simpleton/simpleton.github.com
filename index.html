@@ -291,7 +291,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://simsun.me/11/06/2013/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://simsun.me/12/23/2015/android-startup-tutorial/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Sim Sun">
@@ -311,7 +311,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/11/06/2013/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
+                <a href="/12/23/2015/android-startup-tutorial/" class="post-title-link" itemprop="url">创业码农的一些建议</a>
               
             
           </h1>
@@ -336,7 +336,7 @@
                 
               
 
-              <time title="Created: 11-06-2013 06:40:12" itemprop="dateCreated datePublished" datetime="2013-11-06T06:40:12-08:00">11-06-2013</time>
+              <time title="Created: 12-23-2015 02:51:37" itemprop="dateCreated datePublished" datetime="2015-12-23T02:51:37-08:00">12-23-2015</time>
             
 
             
@@ -353,7 +353,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 05-05-2019 01:34:11" itemprop="dateModified" datetime="2019-05-05T01:34:11-07:00">05-05-2019</time>
+                <time title="Modified: 05-05-2019 02:54:01" itemprop="dateModified" datetime="2019-05-05T02:54:01-07:00">05-05-2019</time>
               
             
           </span>
@@ -389,15 +389,434 @@
       
         
           
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+            <p>开篇先友情提示一下，此篇文章所谈论的技术点与微信无关，如有描述不准确的地方，也欢迎大家支出与讨论。<br>作者去年离开微信，变成一个创业码农，期间也踩过一些坑，这里与大家分享一些我个人的经验。</p>
+<p>微信整体的氛围还是很像创业公司的，快速、高效。但微信团队对技术的挖掘还是很深的。这一点是在创业公司很难做到的。创业公司更追求快速、稳定的做出功能，完成迭代。</p>
+<p>下面给大家介绍一点我个人觉得很大的提高了我的开发效率的工具。</p>
+<h2 id="App架构"><a href="#App架构" class="headerlink" title="App架构"></a>App架构</h2><h3 id="RxJava"><a href="#RxJava" class="headerlink" title="RxJava"></a>RxJava</h3><p>首先给大家安利<a href="http://reactivex.io/" target="_blank" rel="noopener">ReactiveX</a>，其中Android的核心实现为RxJava。</p>
+<p>为了App不卡顿，我们会把所有耗时的操作（比如：网络访问、文件访问）放到Worker Thread中。但是Android本身的AsyncTask的设计个人觉得设计的十分糟糕，不但写出来的代码冗长，而且稍微复杂一些的多流操作就会写的完全无法维护（这里可以用Java本身的线程模式来实现）。而且肆意的开线程也会造成App的卡顿。这里本身最初的想法就是需要一个线程池，以Promise的方式对外提供接口。原先试用过facebook的开源方案<a href="https://github.com/BoltsFramework/Bolts-Android" target="_blank" rel="noopener">Bolts-Android</a>，这个库是parse的开源方案。后来有iOS的同事推荐Reactive的方案，于是就走上了Rx脑残粉的不归路。</p>
+<p>首先Rx会大大减少你的代码量，这一点对“懒惰”的我们十分重要。<br>下面举2个平时开发都会遇到的问题来举例：</p>
+<ol>
+<li><p>搜索界面</p>
+<p> 我们需要在用户输入完毕后第一时间显示搜索结果，由于这个需要请求后台，我们又不想用户每次输入的时候都去后台请求。并且总需要显示当前最新输入内容的结果，不能因为网络的原因产生乱序的结果。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">RxTextView.textChanges(searchEditText)</span><br><span class="line">      .compose(<span class="keyword">this</span>.bindToLifecycle())</span><br><span class="line">      .debounce(<span class="number">300</span>, TimeUnit.MILLISECONDS)</span><br><span class="line">      .switchMap(SearchService::searchFeed)</span><br><span class="line">      .subscribe(</span><br><span class="line">          feeds -&gt; updateUI(),</span><br><span class="line">          throwable -&gt; RxUtil.handleError(throwable, activity)</span><br><span class="line">      );</span><br></pre></td></tr></table></figure>
+<p> 几句简单明了的代码，满足上述的需求，而且看起来十分明了简单。其中<code>.compose.(this.bindToLifecycle())</code>是为了防止内存泄露，<code>.debounce(300, TimeUnit.MILLISECONDS)</code>是表示间隔为300毫秒，使用switchMap是会停止之前发出的请求，防止脏数据重入。<br> 由于Android并不支持Java 8，所以我们需要Retrolambda，来支持lambda表达式。</p>
+</li>
+<li><p>防止多次点击重入</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RxView.clickEvents(button)</span><br><span class="line">       .throttleFirst(<span class="number">300</span>, TimeUnit.MILLISECONDS)</span><br><span class="line">       .subscribe(<span class="keyword">this</span>::onButtonClick);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="MVP-amp-MVVM"><a href="#MVP-amp-MVVM" class="headerlink" title="MVP &amp; MVVM"></a>MVP &amp; MVVM</h3><p><img src="http://7tszlo.com2.z0.glb.qiniucdn.com/mvvm.pic.jpg" alt="image"></p>
+<p>关于MVP&amp;MVVM我一直是拒绝的，因为一开始的几个Screen我是用硬套MVP&amp;MVVM的模式来做的，虽然activity的代码十分简单，但是View和ViewModel都会写一些晦涩、重复的逻辑来保证数据绑定，这不符合D.R.Y.。后来发现google官方有一个<a href="http://developer.android.com/tools/data-binding/guide.html" target="_blank" rel="noopener">data-binding</a>的实现，感觉实现和prism十分类似，已经在最新的迭代中开始使用data-binding来实现MVVM，具体可以参考一个第三方<a href="https://github.com/ivacf/archi" target="_blank" rel="noopener">例子</a>。</p>
+<h2 id="如何优雅的偷懒"><a href="#如何优雅的偷懒" class="headerlink" title="如何优雅的偷懒"></a>如何优雅的偷懒</h2><h3 id="REST-Client"><a href="#REST-Client" class="headerlink" title="REST Client"></a>REST Client</h3><p>关于REST API是一件几乎纯体力活，这里应当使用代码生成工具来帮助我们完成繁琐的工作。如果你的App追求极致的性能和流量，这里可以使用protocal buffer。这个有一个坑，就是PB原生的生成器生成的方法数非常多，会造成Android方法数64K的问题。可以使用Square开源的wire来降低方法数。</p>
+<p>不过笔者的APP并没有使用二进制协议，使用了更容易调试的JSON。其中我们可以定义JSON Schema来描述协议，后台与客户端都可以拿这个schema来生成自己的Model和验证协议数据。Android中可以<a href="https://github.com/joelittlejohn/jsonschema2pojo" target="_blank" rel="noopener">jsonschema2pojo</a>来生成自己的Model代码，并且可以生成Parcelable代码(PS:这一部分可能还存在隐藏BUG，如果你在使用过程中有什么问题可以提issue或者直接联系笔者)。</p>
+<p>关于REST API还有一个杀手级的库<a href="https://github.com/square/retrofit" target="_blank" rel="noopener">Retrofit</a>。Retrofit可以完美配合jackson+Rxjava来实现一个基于ReactiveX的REST Client。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GET</span>(<span class="string">"/v2/feeds/search"</span>)</span><br><span class="line">Observable&lt;List&lt;FeedDetail&gt;&gt; searchFeeds(</span><br><span class="line">        <span class="meta">@Query</span>(<span class="string">"query"</span>) String query,</span><br><span class="line">        <span class="meta">@Query</span>(<span class="string">"tag"</span>) String tag,</span><br><span class="line">        <span class="meta">@Query</span>(<span class="string">"page"</span>) <span class="keyword">int</span> page</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>声明十分简单明了，具体可以去<a href="http://square.github.io/retrofit/" target="_blank" rel="noopener">retrofit</a>的官网了解更多。</p>
+<h3 id="Image-Loader"><a href="#Image-Loader" class="headerlink" title="Image Loader"></a>Image Loader</h3><p>整体APP的架构完成后，图片库也是对于APP十分重要的。笔者刚入职的时候，就是在照着google tutorial上的图片加载的例子写过一个ImageLoader，深深感到做一个高效的图片库还是有很大难度的。还好现在各路大神给了我们很多选择，下面3款笔者认为是可以选择的option:</p>
+<ol>
+<li><a href="https://github.com/square/picasso" target="_blank" rel="noopener">Picasso</a></li>
+<li><a href="https://github.com/bumptech/glide" target="_blank" rel="noopener">Glide</a></li>
+<li><a href="https://github.com/facebook/fresco" target="_blank" rel="noopener">Fresco</a></li>
+</ol>
+<p>其中<code>Picasso</code>和<code>Glide</code>的接口十分接近，但是benckmark下来<code>Glide</code>的性能更好一些，并且支持更多格式的图片，我们现在使用的的是<code>Glide</code>，而<code>Fresco</code>的功能是这3个库中最强大的，且支持<code>PJPG</code>。但是他需要替换你的View，并且接口设计的不如上述2个库。笔者在3个多月以前用<code>Fresco</code>的时候，他在加载多张图片的时候偶尔会有显示不出的情况，不确定现在是否修复。</p>
+<h3 id="ButterKnife"><a href="#ButterKnife" class="headerlink" title="ButterKnife"></a>ButterKnife</h3><p>Jake Wharton是个非常高产的大神，诸多开源库都是他主导的（RxAndroid也是他主要在主导）。<a href="https://github.com/JakeWharton" target="_blank" rel="noopener">ButterKnife</a>可以帮助你少写很多重复的code。配合IDEA的插件可以不用写很多繁琐的<code>findviewByid</code>的搬砖代码。</p>
+<h2 id="质量保证"><a href="#质量保证" class="headerlink" title="质量保证"></a>质量保证</h2><p>监控数据对于App来讲也十分重要，Growth Hacker和开发都需要经常关注。笔者现在在用的有一下几款产品：</p>
+<ol>
+<li><a href="https://get.fabric.io/" target="_blank" rel="noopener">fabric</a></li>
+<li><a href="http://umeng.com" target="_blank" rel="noopener">umeng</a></li>
+<li><a href="http://www.splunk.com" target="_blank" rel="noopener">splunk</a></li>
+</ol>
+<p>fabric和umeng的功能有很大的重叠，fabric是twitter旗下的数据上报和分析系统，笔者这里使用了他的crash报上，做的十分强大，给App的质量提供了保证。splunk是一款服务端的log分析系统，有了他的支持客户端可以减少需要无谓的事件上报。</p>
+<p>另外,<a href="https://github.com/palaima/DebugDrawer" target="_blank" rel="noopener">DebugDrawer</a>也值得推荐，可以帮你继承很多debug时的小工具，快速的在debug版本分析、诊断问题。</p>
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><p>关于最佳实践当然见仁见智，不过笔者还是推荐一些比较成熟的方案<a href="https://github.com/futurice/android-best-practices" target="_blank" rel="noopener">android-best-practices</a>，这个建议精读一下，里面的每一条都是别人踩过的坑总结来的，十分有价值。</p>
+<p>虽然笔者一直是一个人默默开发，但是还是会遵守<a href="https://github.com/nvie/gitflow" target="_blank" rel="noopener">git-flow</a>。每次多花一点点实践换来的分支的规整还是值得的。另外TJ开发的<a href="https://github.com/tj/git-extras" target="_blank" rel="noopener">git-extras</a>会有很多对github友好的命令，也值得推荐。</p>
+<p>另外关于代码格式，也没有官方统一的方案，笔者这里推荐使用Square的<a href="https://github.com/square/java-code-styles" target="_blank" rel="noopener">java-code-styles</a>,也可以自己fork做相应的修改。</p>
+<p>另外强烈push设计的同学使用Sketch，这样不仅可以解放设计的同学在无尽的切图中，也可以让自己节约更多的时间。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>笔者离职一年，感觉创业和做freelancer有很多相似的地方，有大量灵活的时间，你需要学习如何去掌握你的时间，毕竟工作只是生活的一部分，你需要合理的分配时间。所以你的代码要尽可能的少些，即能自动生成的就用脚本来做，能抽象的就不重复去写，可以给自己节约更多的时间去玩耍。。。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="http://reactivex.io/" target="_blank" rel="noopener">ReactiveX</a></p>
+<p><a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="noopener">RxJava</a></p>
+<p><a href="http://blog.danlew.net/2014/09/15/grokking-rxjava-part-1/" target="_blank" rel="noopener">RxJava入门教程</a></p>
+<p><a href="https://medium.com/ribot-labs/approaching-android-with-mvvm-8ceec02d5442#.suutwto9a" target="_blank" rel="noopener">android-application-architecture</a></p>
+<p><a href="https://medium.com/ribot-labs/android-application-architecture-8b6e34acda65#.6qmzrqtdn" target="_blank" rel="noopener">android-application-architecture</a></p>
+<p><a href="https://medium.com/@diolor/improving-ux-with-rxjava-4440a13b157f#.21alo61m9" target="_blank" rel="noopener">Improving UX with RxJava</a></p>
+<p><a href="http://gank.io/post/560e15be2dca930e00da1083#toc_10" target="_blank" rel="noopener">给 Android 开发者的 RxJava 详解</a></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://simsun.me/12/01/2015/db-transcation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sim Sun">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Sim is a fool">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/12/01/2015/db-transcation/" class="post-title-link" itemprop="url">Mysql 事务</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 12-01-2015 02:33:40" itemprop="dateCreated datePublished" datetime="2015-12-01T02:33:40-08:00">12-01-2015</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 05-05-2019 02:46:45" itemprop="dateModified" datetime="2019-05-05T02:46:45-07:00">05-05-2019</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>上一次的抢购出现了库存是 -1 的问题，说明我们lock ticket的逻辑是非排他的，临界区没有被锁住。今天仔细研究了下DB的事务，发现以前的理解有一些偏差。</p>
+<h2 id="tl-dr"><a href="#tl-dr" class="headerlink" title="tl;dr"></a>tl;dr</h2><p>在查询库存的语句加入 <code>for update</code> 来让这一行加入悲观锁，其余同事在查询transcation会被hold住，有效fix读到脏库存的问题。</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>事务的特征：原子性（Atomiocity）、一致性（Consistency）、隔离性（Isolation）和持久性（Durability），这四个特性简称ACID特性。</p>
+<ul>
+<li><p>原子性：事务是数据库的逻辑工作单位，事务中包括的所有操作要么都做，要么都不做。</p>
+</li>
+<li><p>一致性：事务执行的结果必须是使数据库从一个一致性的状态变到另外一个一致性状态。</p>
+</li>
+<li><p>隔离性：一个事务的执行不能被其他事务干扰。即一个事务内部的操作及使用的数据对其他事务是隔离的，并发执行的各个事务之间互相不干扰。</p>
+</li>
+<li><p>持久性：一个事务一旦成功提交，对数据库中数据的修改就是持久性的。接下来其他的其他操作或故障不应该对其执行结果有任何影响。</p>
+</li>
+</ul>
+<h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p>首先被begin和commit（或rollback）包含的逻辑是原子的，即要不一起成功，要不一起失败。这一点我们的理解没有错误。</p>
+<h2 id="隔离性（Ioslation-Level）"><a href="#隔离性（Ioslation-Level）" class="headerlink" title="隔离性（Ioslation Level）"></a>隔离性（Ioslation Level）</h2><p>这一点是我们以前理解错的，对于我们使用的RDS的InnoDB默R认的Ioslation Level为READ COMMITED.</p>
+<ol>
+<li><p>READ UNCOMMITED<br>SELECT的时候允许脏读，即SELECT会读取其他事务修改而还没有提交的数据。</p>
+</li>
+<li><p>READ COMMITED<br>SELECT的时候无法重复读，即同一个事务中两次执行同样的查询语句，若在第一次与第二次查询之间时间段，其他事务又刚好修改了其查询的数据且提交了，则两次读到的数据不一致。</p>
+</li>
+<li><p>REPEATABLE READ<br>SELECT的时候可以重复读，即同一个事务中两次执行同样的查询语句，得到的数据始终都是一致的。实现的原理是，在一个事务对数据行执行读取或写入操作时锁定了这些数据行。<br>但是这种方式又引发了幻想读的问题。因为只能锁定读取或写入的行，不能阻止另一个事务插入数据，后期执行同样的查询会产生更多的结果。</p>
+</li>
+<li><p>SERIALIZABLE<br>与可重复读的唯一区别是，默认把普通的SELECT语句改成SELECT …. LOCK IN SHARE MODE。即为查询语句涉及到的数据加上共享琐，阻塞其他事务修改真实数据。serializable模式中，事务被强制为依次执行。这是SQL标准建议的默认行为。</p>
+</li>
+</ol>
+<p>我们原先一直认为应为SERIALIZABLE, 导致我们读到的数据是不正确的。</p>
+<h3 id="锁机制"><a href="#锁机制" class="headerlink" title="锁机制"></a>锁机制</h3><ul>
+<li>共享锁（乐观锁）：由读表操作加上的锁，加锁后其他用户只能获取该表或行的共享锁，不能获取排它锁，也就是说只能读不能写</li>
+<li>排他锁（悲观锁）：由写表操作加上的锁，加锁后其他用户不能获取该表或行的任何锁，典型是mysql事务中的</li>
+</ul>
+<p>其命令分别为：共享锁(share mode), 排他锁(for update)</p>
+<p>这里我们需要的是排他锁，即当一个操作在lock的时候，其他事务应当被hold住，而不是读到以前的旧数据。</p>
+<h4 id="排他锁例子"><a href="#排他锁例子" class="headerlink" title="排他锁例子"></a>排他锁例子</h4><p>我们做一个小实现，开2个sql的terminal(分别为T1和T2).</p>
+<p><em>T1 RUN</em>:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> begin;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line"><span class="meta">mysql&gt;</span> select * from t1 where id='3' for update;</span><br><span class="line">[result]</span><br></pre></td></tr></table></figure></p>
+<p><em>T2 RUN</em>:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> select * from t1;</span><br></pre></td></tr></table></figure></p>
+<p>这一句查询是OK的</p>
+<p><em>T2 查询非锁定记录</em><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">2</span> <span class="keyword">for</span> <span class="keyword">update</span>;</span><br></pre></td></tr></table></figure></p>
+<p><em>T2 查询锁定记录</em><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">for</span> <span class="keyword">update</span>;</span><br></pre></td></tr></table></figure></p>
+<p>这样会被hold住</p>
+<h4 id="表加锁解锁"><a href="#表加锁解锁" class="headerlink" title="表加锁解锁"></a>表加锁解锁</h4><ul>
+<li>LOCK TABLES tablename WRITE;</li>
+<li>LOCK TABLES tablename READ;</li>
+<li>UNLOCK TABLE;S</li>
+</ul>
+<p>###事务所用到的表<br>information_schema<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> innodb_trx;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> innodb_lock_waits;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> innodb_locks;</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://simsun.me/01/27/2014/how-does-dalvik-implement-thread-priority/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sim Sun">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Sim is a fool">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/01/27/2014/how-does-dalvik-implement-thread-priority/" class="post-title-link" itemprop="url">How does Dalvik implement Thread Priority</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 01-27-2014 00:00:00" itemprop="dateCreated datePublished" datetime="2014-01-27T00:00:00-08:00">01-27-2014</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 05-05-2019 03:04:56" itemprop="dateModified" datetime="2019-05-05T03:04:56-07:00">05-05-2019</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Java-Thread-Implementation"><a href="#Java-Thread-Implementation" class="headerlink" title="Java Thread Implementation"></a>Java Thread Implementation</h1><p>On linux platform, jvm implement thread in native thread method, every jvm thread will map a native thread. And so on, native thread under the linux platform are implemented as processes that shared resources. The scheduler does not differentiate between a thread and a process.<br>All threads of all apps belong on the same thread group on the system, so every thread competes with all threads of all apps. Therefore, <code>Thread.setPriority</code> should actually do the same as <code>Process.setThreadPriority</code>.</p>
+<p>Currently, CFS is the default scheduler for process or thread on linux platform. And also there is other schedule for real time task.</p>
+<h1 id="CFS-Priority-Scheduling"><a href="#CFS-Priority-Scheduling" class="headerlink" title="CFS Priority Scheduling"></a>CFS Priority Scheduling</h1><p><strong>SCHED_NORMAL</strong>, <strong>SCHED_BATCH</strong>, <strong>SCHED_IDEL</strong> will be scheduled by CFS scheduler.</p>
+<p><strong>SCHED_RR</strong> and <strong>SCHED_FIFO</strong> will be scheduled by real time scheduler.</p>
+<p>In Complete Fair Scheduler every task has the virtual time parameter to save the time that it had token cup time. And the system record the fair clock which is running in RealTime div TheNumberOfTask. Every task’s vtime will trbby to catch the fair clock. All task will save in RB tree with its vtime. In every sechuldeing happened, the sechudler will choose the left of RB tree which is has the most small vtime.</p>
+<p>On the other hand, every task has seperated priority. If one task has two times priority than the other, the high priority task will get two times cup time than the other.</p>
+<h1 id="Android-Thread-Pirority-Implementation"><a href="#Android-Thread-Pirority-Implementation" class="headerlink" title="Android Thread Pirority Implementation"></a>Android Thread Pirority Implementation</h1><p><img src="http://pic002.cnblogs.com/images/2011/261337/2011110610315226.png" alt="Priority"></p>
+<p><a href="http://androidxref.com/4.2_r1/xref/dalvik/vm/os/android.cpp#48" target="_blank" rel="noopener">http://androidxref.com/4.2_r1/xref/dalvik/vm/os/android.cpp#48</a><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">os_changeThreadPriority</span><span class="params">(Thread* thread, <span class="keyword">int</span> newPriority)</span>	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (newPriority &lt; <span class="number">1</span> || newPriority &gt; <span class="number">10</span>) &#123;</span><br><span class="line">		ALOGW(<span class="string">"bad priority %d"</span>, newPriority);</span><br><span class="line">        newPriority = <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> newNice = kNiceValues[newPriority<span class="number">-1</span>];</span><br><span class="line">    <span class="keyword">pid_t</span> pid = thread-&gt;systemTid;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (newNice &gt;= ANDROID_PRIORITY_BACKGROUND) &#123;</span><br><span class="line">        set_sched_policy(dvmGetSysThreadId(), SP_BACKGROUND);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (getpriority(PRIO_PROCESS, pid) &gt;= ANDROID_PRIORITY_BACKGROUND) &#123;</span><br><span class="line">        set_sched_policy(dvmGetSysThreadId(), SP_FOREGROUND);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (setpriority(PRIO_PROCESS, pid, newNice) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">threadName</span><span class="params">(dvmGetThreadName(thread))</span></span>;</span><br><span class="line">        ALOGI(<span class="string">"setPriority(%d) '%s' to prio=%d(n=%d) failed: %s"</span>,</span><br><span class="line">        pid, threadName.c_str(), newPriority, newNice, strerror(errno));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ALOGV(<span class="string">"setPriority(%d) to prio=%d(n=%d)"</span>, pid, newPriority, newNice);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><a href="http://androidxref.com/4.2_r1/xref/system/core/libcutils/sched_policy.c#312" target="_blank" rel="noopener">http://androidxref.com/4.2_r1/xref/system/core/libcutils/sched_policy.c#312</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">if</span> (sys_supports_schedgroups) &#123;</span><br><span class="line">     <span class="keyword">if</span> (add_tid_to_cgroup(tid, policy)) &#123;</span><br><span class="line">           <span class="keyword">if</span> (errno != ESRCH &amp;&amp; errno != ENOENT)</span><br><span class="line">               <span class="keyword">return</span> -errno;</span><br><span class="line">		&#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">       struct sched_param param;</span><br><span class="line"></span><br><span class="line">       param.sched_priority = <span class="number">0</span>;</span><br><span class="line">       sched_setscheduler(tid,</span><br><span class="line">                          (policy == SP_BACKGROUND) ?</span><br><span class="line">                           SCHED_BATCH : SCHED_NORMAL,</span><br><span class="line">                          &amp;param);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L3015" target="_blank" rel="noopener">http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L3015</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Actually do priority change: must hold rq lock. */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line">__setscheduler(struct rq *rq, struct task_struct *p, <span class="keyword">int</span> policy, <span class="keyword">int</span> prio)</span><br><span class="line">&#123;</span><br><span class="line">	p-&gt;policy = policy;</span><br><span class="line">	p-&gt;rt_priority = prio;</span><br><span class="line">	p-&gt;normal_prio = normal_prio(p);</span><br><span class="line">	<span class="comment">/* we are holding p-&gt;pi_lock already */</span></span><br><span class="line">	p-&gt;prio = rt_mutex_getprio(p);</span><br><span class="line">	<span class="keyword">if</span> (rt_prio(p-&gt;prio))</span><br><span class="line">		p-&gt;sched_class = &amp;rt_sched_class;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		p-&gt;sched_class = &amp;fair_sched_class;</span><br><span class="line">	set_load_weight(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L2462" target="_blank" rel="noopener">http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L2462</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *</span></span><br><span class="line"><span class="class"><span class="title">pick_next_task</span>(<span class="title">struct</span> <span class="title">rq</span> *<span class="title">rq</span>)</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">       <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">sched_class</span> *<span class="title">class</span>;</span></span><br><span class="line">       <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">p</span>;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">/*</span></span><br><span class="line"><span class="comment">        * Optimization: we know that if all tasks are in</span></span><br><span class="line"><span class="comment">        * the fair class we can call that function directly:</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       <span class="keyword">if</span> (likely(rq-&gt;nr_running == rq-&gt;cfs.h_nr_running)) &#123;</span><br><span class="line">               p = fair_sched_class.pick_next_task(rq);</span><br><span class="line">               <span class="keyword">if</span> (likely(p))</span><br><span class="line">                       <span class="keyword">return</span> p;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       for_each_class(class) &#123;</span><br><span class="line">               p = class-&gt;pick_next_task(rq);</span><br><span class="line">               <span class="keyword">if</span> (p)</span><br><span class="line">                       <span class="keyword">return</span> p;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       BUG(); <span class="comment">/* the idle class will always have a runnable task */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Demo-Time"><a href="#Demo-Time" class="headerlink" title="Demo Time"></a>Demo Time</h1><p><a href="https://github.com/simpleton/android_misc/tree/master/ThreadBenchmark" target="_blank" rel="noopener">https://github.com/simpleton/android_misc/tree/master/ThreadBenchmark</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a href="http://lwn.net/Articles/3866/" target="_blank" rel="noopener">http://lwn.net/Articles/3866/</a></li>
+<li><a href="http://androidxref.com/source/xref/dalvik/vm/Thread.cpp" target="_blank" rel="noopener">http://androidxref.com/source/xref/dalvik/vm/Thread.cpp</a></li>
+<li><a href="http://stackoverflow.com/questions/1662185/do-linux-jvms-actually-implement-thread-priorities" target="_blank" rel="noopener">http://stackoverflow.com/questions/1662185/do-linux-jvms-actually-implement-thread-priorities</a></li>
+<li><a href="http://blog.csdn.net/innost/article/details/6940136" target="_blank" rel="noopener">http://blog.csdn.net/innost/article/details/6940136</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/linux/l-cfs/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/l-cfs/</a></li>
+<li><a href="http://hi.baidu.com/_kouu/item/055bd19af9f6b9dc1f4271d1" target="_blank" rel="noopener">http://hi.baidu.com/_kouu/item/055bd19af9f6b9dc1f4271d1</a></li>
+<li><a href="http://ck.wikia.com/wiki/SchedulingPolicies" target="_blank" rel="noopener">http://ck.wikia.com/wiki/SchedulingPolicies</a></li>
+</ol>
 
           
         
@@ -481,7 +900,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-count">3</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -489,6 +908,31 @@
 
               
 
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  
+                </div>
               
             </nav>
           

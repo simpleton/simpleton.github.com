@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Java Thread ImplementationOn linux platform, jvm implement thread in native thread method, every jvm thread will map a native thread. And so on, native thread under the linux platform are implemented">
+<meta name="keywords" content="android,thread">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How does Dalvik implement Thread Priority">
+<meta property="og:url" content="http://simsun.me/01/27/2014/how-does-dalvik-implement-thread-priority/index.html">
+<meta property="og:site_name" content="Sim is a fool">
+<meta property="og:description" content="Java Thread ImplementationOn linux platform, jvm implement thread in native thread method, every jvm thread will map a native thread. And so on, native thread under the linux platform are implemented">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://pic002.cnblogs.com/images/2011/261337/2011110610315226.png">
+<meta property="og:updated_time" content="2019-05-05T10:04:56.516Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How does Dalvik implement Thread Priority">
+<meta name="twitter:description" content="Java Thread ImplementationOn linux platform, jvm implement thread in native thread method, every jvm thread will map a native thread. And so on, native thread under the linux platform are implemented">
+<meta name="twitter:image" content="http://pic002.cnblogs.com/images/2011/261337/2011110610315226.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://simsun.me/01/27/2014/how-does-dalvik-implement-thread-priority/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>How does Dalvik implement Thread Priority | Sim is a fool</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Sim is a fool</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Hello Stranger</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://simsun.me/01/27/2014/how-does-dalvik-implement-thread-priority/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sim Sun">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Sim is a fool">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">How does Dalvik implement Thread Priority
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 01-27-2014 00:00:00" itemprop="dateCreated datePublished" datetime="2014-01-27T00:00:00-08:00">01-27-2014</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 05-05-2019 03:04:56" itemprop="dateModified" datetime="2019-05-05T03:04:56-07:00">05-05-2019</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Java-Thread-Implementation"><a href="#Java-Thread-Implementation" class="headerlink" title="Java Thread Implementation"></a>Java Thread Implementation</h1><p>On linux platform, jvm implement thread in native thread method, every jvm thread will map a native thread. And so on, native thread under the linux platform are implemented as processes that shared resources. The scheduler does not differentiate between a thread and a process.<br>All threads of all apps belong on the same thread group on the system, so every thread competes with all threads of all apps. Therefore, <code>Thread.setPriority</code> should actually do the same as <code>Process.setThreadPriority</code>.</p>
+<p>Currently, CFS is the default scheduler for process or thread on linux platform. And also there is other schedule for real time task.</p>
+<h1 id="CFS-Priority-Scheduling"><a href="#CFS-Priority-Scheduling" class="headerlink" title="CFS Priority Scheduling"></a>CFS Priority Scheduling</h1><p><strong>SCHED_NORMAL</strong>, <strong>SCHED_BATCH</strong>, <strong>SCHED_IDEL</strong> will be scheduled by CFS scheduler.</p>
+<p><strong>SCHED_RR</strong> and <strong>SCHED_FIFO</strong> will be scheduled by real time scheduler.</p>
+<p>In Complete Fair Scheduler every task has the virtual time parameter to save the time that it had token cup time. And the system record the fair clock which is running in RealTime div TheNumberOfTask. Every task’s vtime will trbby to catch the fair clock. All task will save in RB tree with its vtime. In every sechuldeing happened, the sechudler will choose the left of RB tree which is has the most small vtime.</p>
+<p>On the other hand, every task has seperated priority. If one task has two times priority than the other, the high priority task will get two times cup time than the other.</p>
+<h1 id="Android-Thread-Pirority-Implementation"><a href="#Android-Thread-Pirority-Implementation" class="headerlink" title="Android Thread Pirority Implementation"></a>Android Thread Pirority Implementation</h1><p><img src="http://pic002.cnblogs.com/images/2011/261337/2011110610315226.png" alt="Priority"></p>
+<p><a href="http://androidxref.com/4.2_r1/xref/dalvik/vm/os/android.cpp#48" target="_blank" rel="noopener">http://androidxref.com/4.2_r1/xref/dalvik/vm/os/android.cpp#48</a><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">os_changeThreadPriority</span><span class="params">(Thread* thread, <span class="keyword">int</span> newPriority)</span>	</span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (newPriority &lt; <span class="number">1</span> || newPriority &gt; <span class="number">10</span>) &#123;</span><br><span class="line">		ALOGW(<span class="string">"bad priority %d"</span>, newPriority);</span><br><span class="line">        newPriority = <span class="number">5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> newNice = kNiceValues[newPriority<span class="number">-1</span>];</span><br><span class="line">    <span class="keyword">pid_t</span> pid = thread-&gt;systemTid;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (newNice &gt;= ANDROID_PRIORITY_BACKGROUND) &#123;</span><br><span class="line">        set_sched_policy(dvmGetSysThreadId(), SP_BACKGROUND);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (getpriority(PRIO_PROCESS, pid) &gt;= ANDROID_PRIORITY_BACKGROUND) &#123;</span><br><span class="line">        set_sched_policy(dvmGetSysThreadId(), SP_FOREGROUND);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (setpriority(PRIO_PROCESS, pid, newNice) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">threadName</span><span class="params">(dvmGetThreadName(thread))</span></span>;</span><br><span class="line">        ALOGI(<span class="string">"setPriority(%d) '%s' to prio=%d(n=%d) failed: %s"</span>,</span><br><span class="line">        pid, threadName.c_str(), newPriority, newNice, strerror(errno));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        ALOGV(<span class="string">"setPriority(%d) to prio=%d(n=%d)"</span>, pid, newPriority, newNice);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><a href="http://androidxref.com/4.2_r1/xref/system/core/libcutils/sched_policy.c#312" target="_blank" rel="noopener">http://androidxref.com/4.2_r1/xref/system/core/libcutils/sched_policy.c#312</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">if</span> (sys_supports_schedgroups) &#123;</span><br><span class="line">     <span class="keyword">if</span> (add_tid_to_cgroup(tid, policy)) &#123;</span><br><span class="line">           <span class="keyword">if</span> (errno != ESRCH &amp;&amp; errno != ENOENT)</span><br><span class="line">               <span class="keyword">return</span> -errno;</span><br><span class="line">		&#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">       struct sched_param param;</span><br><span class="line"></span><br><span class="line">       param.sched_priority = <span class="number">0</span>;</span><br><span class="line">       sched_setscheduler(tid,</span><br><span class="line">                          (policy == SP_BACKGROUND) ?</span><br><span class="line">                           SCHED_BATCH : SCHED_NORMAL,</span><br><span class="line">                          &amp;param);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L3015" target="_blank" rel="noopener">http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L3015</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Actually do priority change: must hold rq lock. */</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line">__setscheduler(struct rq *rq, struct task_struct *p, <span class="keyword">int</span> policy, <span class="keyword">int</span> prio)</span><br><span class="line">&#123;</span><br><span class="line">	p-&gt;policy = policy;</span><br><span class="line">	p-&gt;rt_priority = prio;</span><br><span class="line">	p-&gt;normal_prio = normal_prio(p);</span><br><span class="line">	<span class="comment">/* we are holding p-&gt;pi_lock already */</span></span><br><span class="line">	p-&gt;prio = rt_mutex_getprio(p);</span><br><span class="line">	<span class="keyword">if</span> (rt_prio(p-&gt;prio))</span><br><span class="line">		p-&gt;sched_class = &amp;rt_sched_class;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		p-&gt;sched_class = &amp;fair_sched_class;</span><br><span class="line">	set_load_weight(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L2462" target="_blank" rel="noopener">http://lxr.linux.no/#linux+v3.13.5/kernel/sched/core.c#L2462</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *</span></span><br><span class="line"><span class="class"><span class="title">pick_next_task</span>(<span class="title">struct</span> <span class="title">rq</span> *<span class="title">rq</span>)</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">       <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">sched_class</span> *<span class="title">class</span>;</span></span><br><span class="line">       <span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">p</span>;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">/*</span></span><br><span class="line"><span class="comment">        * Optimization: we know that if all tasks are in</span></span><br><span class="line"><span class="comment">        * the fair class we can call that function directly:</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       <span class="keyword">if</span> (likely(rq-&gt;nr_running == rq-&gt;cfs.h_nr_running)) &#123;</span><br><span class="line">               p = fair_sched_class.pick_next_task(rq);</span><br><span class="line">               <span class="keyword">if</span> (likely(p))</span><br><span class="line">                       <span class="keyword">return</span> p;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       for_each_class(class) &#123;</span><br><span class="line">               p = class-&gt;pick_next_task(rq);</span><br><span class="line">               <span class="keyword">if</span> (p)</span><br><span class="line">                       <span class="keyword">return</span> p;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       BUG(); <span class="comment">/* the idle class will always have a runnable task */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Demo-Time"><a href="#Demo-Time" class="headerlink" title="Demo Time"></a>Demo Time</h1><p><a href="https://github.com/simpleton/android_misc/tree/master/ThreadBenchmark" target="_blank" rel="noopener">https://github.com/simpleton/android_misc/tree/master/ThreadBenchmark</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li><a href="http://lwn.net/Articles/3866/" target="_blank" rel="noopener">http://lwn.net/Articles/3866/</a></li>
+<li><a href="http://androidxref.com/source/xref/dalvik/vm/Thread.cpp" target="_blank" rel="noopener">http://androidxref.com/source/xref/dalvik/vm/Thread.cpp</a></li>
+<li><a href="http://stackoverflow.com/questions/1662185/do-linux-jvms-actually-implement-thread-priorities" target="_blank" rel="noopener">http://stackoverflow.com/questions/1662185/do-linux-jvms-actually-implement-thread-priorities</a></li>
+<li><a href="http://blog.csdn.net/innost/article/details/6940136" target="_blank" rel="noopener">http://blog.csdn.net/innost/article/details/6940136</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/linux/l-cfs/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/l-cfs/</a></li>
+<li><a href="http://hi.baidu.com/_kouu/item/055bd19af9f6b9dc1f4271d1" target="_blank" rel="noopener">http://hi.baidu.com/_kouu/item/055bd19af9f6b9dc1f4271d1</a></li>
+<li><a href="http://ck.wikia.com/wiki/SchedulingPolicies" target="_blank" rel="noopener">http://ck.wikia.com/wiki/SchedulingPolicies</a></li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag"># android</a>
+          
+            <a href="/tags/thread/" rel="tag"># thread</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/12/01/2015/db-transcation/" rel="prev" title="Mysql 事务">
+                Mysql 事务 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Sim Sun</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-Thread-Implementation"><span class="nav-number">1.</span> <span class="nav-text">Java Thread Implementation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CFS-Priority-Scheduling"><span class="nav-number">2.</span> <span class="nav-text">CFS Priority Scheduling</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-Thread-Pirority-Implementation"><span class="nav-number">3.</span> <span class="nav-text">Android Thread Pirority Implementation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Demo-Time"><span class="nav-number">4.</span> <span class="nav-text">Demo Time</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sim Sun</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
